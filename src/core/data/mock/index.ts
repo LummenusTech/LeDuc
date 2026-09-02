@@ -13,6 +13,7 @@ import type {
 } from "@/core/data/contracts";
 import {
   summarizeSession,
+  toAttempts,
   type ActivitySession,
 } from "@/core/domain/activity-session";
 import { filterPublished } from "@/core/domain/permissions";
@@ -263,8 +264,18 @@ const activityRepository: ActivityRepository = {
     return delay(summary, 200);
   },
 
-  async listAttempts() {
-    return delay([]);
+  async listAttempts(lessonId: string) {
+    const activityIds = MOCK_ACTIVITIES.filter(
+      (activity) => activity.lessonId === lessonId,
+    ).map((activity) => activity.id);
+
+    const sessions = readSessions();
+    const attempts = activityIds.flatMap((activityId) => {
+      const session = sessions[activityId];
+      return session ? toAttempts(session) : [];
+    });
+
+    return delay(attempts, 60);
   },
 };
 
