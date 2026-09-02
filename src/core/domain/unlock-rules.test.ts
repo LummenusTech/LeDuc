@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import type { Lesson, LessonProgress } from "@/core/domain/types";
+import type { Activity, Lesson, LessonProgress } from "@/core/domain/types";
 import {
   computeTrackProgress,
   findResumeLesson,
+  isLessonComplete,
   isLessonUnlocked,
+  isTrackComplete,
   resolveLessonStatuses,
 } from "@/core/domain/unlock-rules";
 
@@ -112,5 +114,53 @@ describe("computeTrackProgress", () => {
 
   it("devolve zero para trilha sem lições", () => {
     expect(computeTrackProgress([], {})).toBe(0);
+  });
+});
+
+const activity = (id: string, orderIndex: number): Activity => ({
+  id,
+  lessonId: "l1",
+  title: `Atividade ${orderIndex + 1}`,
+  orderIndex,
+});
+
+describe("isLessonComplete", () => {
+  const activities = [activity("a1", 0), activity("a2", 1)];
+
+  it("RN-P5: concluída quando toda atividade está concluída", () => {
+    const completed = new Set(["a1", "a2"]);
+    expect(isLessonComplete(activities, completed)).toBe(true);
+  });
+
+  it("RN-P5: não concluída enquanto falta uma atividade", () => {
+    const completed = new Set(["a1"]);
+    expect(isLessonComplete(activities, completed)).toBe(false);
+  });
+
+  it("uma lição sem atividades nunca está concluída", () => {
+    expect(isLessonComplete([], new Set())).toBe(false);
+  });
+});
+
+describe("isTrackComplete", () => {
+  it("RN-P6: concluída quando toda lição está concluída", () => {
+    const progress: Record<string, LessonProgress> = {
+      l1: completed("l1"),
+      l2: completed("l2"),
+      l3: completed("l3"),
+    };
+    expect(isTrackComplete(lessons, progress)).toBe(true);
+  });
+
+  it("RN-P6: não concluída enquanto falta uma lição", () => {
+    const progress: Record<string, LessonProgress> = {
+      l1: completed("l1"),
+      l2: completed("l2"),
+    };
+    expect(isTrackComplete(lessons, progress)).toBe(false);
+  });
+
+  it("uma trilha sem lições nunca está concluída", () => {
+    expect(isTrackComplete([], {})).toBe(false);
   });
 });
