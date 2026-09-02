@@ -7,6 +7,7 @@ import { useState, type FormEvent } from "react";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/config/routes";
+import { toUserMessage } from "@/core/domain/errors";
 import { useSignIn } from "@/features/auth/hooks";
 import { cn } from "@/lib/cn";
 
@@ -121,7 +122,7 @@ export function SignInForm() {
 
         {signIn.error && (
           <p role="alert" className="text-sm font-medium text-danger">
-            {signIn.error.message}
+            {toUserMessage(signIn.error)}
           </p>
         )}
 
