@@ -17,6 +17,7 @@ import {
   type ActivitySession,
 } from "@/core/domain/activity-session";
 import { filterPublished } from "@/core/domain/permissions";
+import { ValidationError } from "@/core/domain/errors";
 import {
   enqueue as enqueueSyncItem,
   markSent as markSyncSent,
@@ -84,7 +85,11 @@ const authRepository: AuthRepository = {
     await delay(null, 600);
 
     if (!email.trim() || !password.trim()) {
-      throw new Error("Preencha o e-mail e a senha para entrar.");
+      throw new ValidationError(
+        "E-mail e senha são obrigatórios.",
+        !email.trim() ? "email" : "password",
+        "Preencha o e-mail e a senha para entrar.",
+      );
     }
 
     writeStoredSession(true);
