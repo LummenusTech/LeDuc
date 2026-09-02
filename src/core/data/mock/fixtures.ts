@@ -13,6 +13,7 @@ import type {
   Track,
   User,
 } from "@/core/domain/types";
+import { ACHIEVEMENTS_TOTAL } from "@/config/achievements";
 
 /**
  * Dados de demonstração.
@@ -358,7 +359,7 @@ export const MOCK_GAMIFICATION: GamificationSummary = {
   streakDays: 5,
   longestStreakDays: 11,
   achievementsUnlocked: 7,
-  achievementsTotal: 24,
+  achievementsTotal: ACHIEVEMENTS_TOTAL,
 };
 
 export const MOCK_MODULE_PERFORMANCE: ModulePerformance[] = [
