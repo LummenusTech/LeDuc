@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   LeDuc — tokens de design
+   Fonte única de verdade para cor, forma, tipografia e espaçamento.
+   Nenhum valor hexadecimal deve existir fora deste arquivo.
+   ========================================================================== */
+
+@theme {
+  /* --- superfícies e texto --- */
+  --color-canvas: #f7f5ff;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f3f0fd;
+  --color-ink: #2c2a35;
+  /* #7a7688, mais próximo do mockup, dá 4,40:1 sobre branco e reprova em AA.
+     Escurecido para 5,15:1 mantendo o mesmo viés violeta. */
+  --color-ink-muted: #6f6b7d;
+  --color-ink-inverse: #ffffff;
+  --color-line: #e8e4f6;
+
+  /* --- marca --- */
+  --color-primary: #6d28d9;
+  --color-primary-hover: #5b21b6;
+  --color-primary-soft: #ede9fe;
+  --color-sidebar: #6127c9;
+  --color-sidebar-hover: #7338d8;
+
+  /* --- tintas categóricas (uma por trilha) ---
+     cover = capa do card (pastel, nunca recebe texto pequeno)
+     solid = preenchimento de barra e ícone (nunca texto pequeno sobre branco)
+     soft  = fundo de chip
+     ink   = texto sobre `soft` e sobre branco — é a única variante aprovada
+             para texto, todas com contraste AA */
+  --color-tint-violeta-cover: #c4b5fd;
+  --color-tint-violeta-solid: #7c3aed;
+  --color-tint-violeta-soft: #ede9fe;
+  --color-tint-violeta-ink: #5b21b6;
+
+  --color-tint-verde-cover: #a7f3c4;
+  --color-tint-verde-solid: #16a34a;
+  --color-tint-verde-soft: #dcfce7;
+  --color-tint-verde-ink: #15803d;
+
+  --color-tint-pessego-cover: #fdc9a0;
+  --color-tint-pessego-solid: #ea580c;
+  --color-tint-pessego-soft: #ffedd5;
+  --color-tint-pessego-ink: #c2410c;
+
+  --color-tint-azul-cover: #a5c8f5;
+  --color-tint-azul-solid: #2563eb;
+  --color-tint-azul-soft: #dbeafe;
+  --color-tint-azul-ink: #1d4ed8;
+
+  /* --- semânticos --- */
+  --color-success: #15803d;
+  --color-success-soft: #dcfce7;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fee2e2;
+  --color-warning: #b45309;
+  --color-warning-soft: #fef3c7;
+
+  /* --- forma --- */
+  --radius-control: 0.75rem;
+  --radius-card: 1.25rem;
+  --radius-pill: 9999px;
+
+  --shadow-card: 0 4px 24px -6px rgb(76 29 149 / 0.1);
+  --shadow-raised: 0 10px 32px -8px rgb(76 29 149 / 0.18);
+
+  /* --- tipografia --- */
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+
+  /* --- alvo de toque mínimo (56px) --- */
+  --spacing-touch: 3.5rem;
+}
+
+/* ==========================================================================
+   Preferências de acessibilidade — aplicadas por atributo no <html>.
+   Ficam FORA de @layer para vencer os tokens do tema por ordem de cascata.
+   ========================================================================== */
+
+:root {
+  --font-scale: 1;
+}
+
+[data-font-scale="grande"] {
+  --font-scale: 1.15;
+}
+
+[data-font-scale="maior"] {
+  --font-scale: 1.3;
+}
+
+html {
+  font-size: calc(16px * var(--font-scale));
+}
+
+[data-contrast="alto"] {
+  --color-canvas: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-muted: #ffffff;
+  --color-ink: #000000;
+  --color-ink-muted: #262626;
+  --color-line: #000000;
+
+  --color-primary: #3b0f7a;
+  --color-primary-hover: #2a0a5c;
+  --color-primary-soft: #ffffff;
+  --color-sidebar: #2a0a5c;
+  --color-sidebar-hover: #3b0f7a;
+
+  --color-tint-violeta-cover: #4c1d95;
+  --color-tint-violeta-solid: #4c1d95;
+  --color-tint-violeta-soft: #ffffff;
+  --color-tint-violeta-ink: #3b0f7a;
+
+  --color-tint-verde-cover: #14532d;
+  --color-tint-verde-solid: #14532d;
+  --color-tint-verde-soft: #ffffff;
+  --color-tint-verde-ink: #14532d;
+
+  --color-tint-pessego-cover: #7c2d12;
+  --color-tint-pessego-solid: #7c2d12;
+  --color-tint-pessego-soft: #ffffff;
+  --color-tint-pessego-ink: #7c2d12;
+
+  --color-tint-azul-cover: #1e3a8a;
+  --color-tint-azul-solid: #1e3a8a;
+  --color-tint-azul-soft: #ffffff;
+  --color-tint-azul-ink: #1e3a8a;
+
+  --color-success: #14532d;
+  --color-danger: #7f1d1d;
+  --color-warning: #78350f;
+
+  --shadow-card: 0 0 0 2px #000000;
+  --shadow-raised: 0 0 0 2px #000000;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Foco sempre visível: o público navega por teclado e leitor de tela. */
+:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

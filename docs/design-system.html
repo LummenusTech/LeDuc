@@ -1,0 +1,693 @@
+<title>Sistema de Design LeDuc</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+  /* ====================================================================
+     Chrome da documentação. Adapta ao tema do leitor.
+     As amostras do produto NÃO adaptam: elas pintam sempre as cores reais
+     do LeDuc, senão a página estaria documentando outra coisa.
+     ==================================================================== */
+  :root {
+    --doc-ground: #f7f5ff;
+    --doc-surface: #ffffff;
+    --doc-surface-2: #f1edfd;
+    --doc-ink: #241f35;
+    --doc-muted: #635d78;
+    --doc-rule: #e2dcf5;
+    --doc-accent: #6d28d9;
+    --doc-accent-soft: #ede9fe;
+    --doc-shadow: 0 4px 24px -8px rgb(76 29 149 / 0.18);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --doc-ground: #15111f;
+      --doc-surface: #1e1830;
+      --doc-surface-2: #261e3c;
+      --doc-ink: #f1ecfb;
+      --doc-muted: #a79fc0;
+      --doc-rule: #342a4c;
+      --doc-accent: #b69cfb;
+      --doc-accent-soft: #2c2145;
+      --doc-shadow: 0 4px 24px -8px rgb(0 0 0 / 0.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --doc-ground: #15111f;
+    --doc-surface: #1e1830;
+    --doc-surface-2: #261e3c;
+    --doc-ink: #f1ecfb;
+    --doc-muted: #a79fc0;
+    --doc-rule: #342a4c;
+    --doc-accent: #b69cfb;
+    --doc-accent-soft: #2c2145;
+    --doc-shadow: 0 4px 24px -8px rgb(0 0 0 / 0.6);
+  }
+
+  /* --- tokens reais do produto, espelhados de src/app/globals.css --- */
+  .stage {
+    --canvas: #f7f5ff;
+    --surface: #ffffff;
+    --surface-muted: #f3f0fd;
+    --ink: #2c2a35;
+    --ink-muted: #6f6b7d;
+    --line: #e8e4f6;
+    --primary: #6d28d9;
+    --primary-hover: #5b21b6;
+    --primary-soft: #ede9fe;
+    --sidebar: #6127c9;
+    --violeta-cover: #c4b5fd; --violeta-solid: #7c3aed; --violeta-soft: #ede9fe; --violeta-ink: #5b21b6;
+    --verde-cover: #a7f3c4;   --verde-solid: #16a34a;   --verde-soft: #dcfce7;   --verde-ink: #15803d;
+    --pessego-cover: #fdc9a0; --pessego-solid: #ea580c; --pessego-soft: #ffedd5; --pessego-ink: #c2410c;
+    --azul-cover: #a5c8f5;    --azul-solid: #2563eb;    --azul-soft: #dbeafe;    --azul-ink: #1d4ed8;
+    --success: #15803d; --success-soft: #dcfce7;
+    --danger: #b91c1c;  --danger-soft: #fee2e2;
+    --radius-control: 0.75rem;
+    --radius-card: 1.25rem;
+    --shadow-card: 0 4px 24px -6px rgb(76 29 149 / 0.1);
+  }
+
+  .stage[data-contrast="alto"] {
+    --canvas: #ffffff; --surface: #ffffff; --surface-muted: #ffffff;
+    --ink: #000000; --ink-muted: #262626; --line: #000000;
+    --primary: #3b0f7a; --primary-soft: #ffffff; --sidebar: #2a0a5c;
+    --violeta-cover: #4c1d95; --violeta-solid: #4c1d95; --violeta-soft: #ffffff; --violeta-ink: #3b0f7a;
+    --verde-cover: #14532d;   --verde-solid: #14532d;   --verde-soft: #ffffff;   --verde-ink: #14532d;
+    --pessego-cover: #7c2d12; --pessego-solid: #7c2d12; --pessego-soft: #ffffff; --pessego-ink: #7c2d12;
+    --azul-cover: #1e3a8a;    --azul-solid: #1e3a8a;    --azul-soft: #ffffff;    --azul-ink: #1e3a8a;
+    --shadow-card: 0 0 0 2px #000000;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--doc-ground);
+    color: var(--doc-ink);
+    font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: 3.5rem;
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 3rem 1.75rem 6rem;
+  }
+
+  /* Índice em rail à esquerda — o mesmo gesto da barra lateral do produto. */
+  .rail { position: sticky; top: 3rem; align-self: start; }
+  .rail-brand {
+    font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em;
+    margin: 0 0 0.25rem;
+  }
+  .rail-brand span { color: var(--doc-accent); }
+  .rail-note {
+    font-size: 0.78rem; color: var(--doc-muted); margin: 0 0 1.5rem;
+    line-height: 1.5;
+  }
+  .rail nav { display: flex; flex-direction: column; gap: 0.1rem; }
+  .rail a {
+    color: var(--doc-muted); text-decoration: none;
+    font-size: 0.86rem; padding: 0.35rem 0.7rem;
+    border-radius: 999px; transition: background 0.15s, color 0.15s;
+  }
+  .rail a:hover { background: var(--doc-accent-soft); color: var(--doc-accent); }
+  .rail a:focus-visible { outline: 2px solid var(--doc-accent); outline-offset: 2px; }
+
+  main { min-width: 0; display: flex; flex-direction: column; gap: 4.5rem; }
+
+  .lede h1 {
+    font-size: clamp(2.1rem, 4.5vw, 3rem); line-height: 1.1; margin: 0 0 0.75rem;
+    letter-spacing: -0.025em; font-weight: 700; text-wrap: balance;
+  }
+  .lede h1 span { color: var(--doc-accent); }
+  .lede p { max-width: 62ch; margin: 0 0 0.85rem; color: var(--doc-muted); }
+  .lede strong { color: var(--doc-ink); font-weight: 600; }
+
+  section > h2 {
+    font-size: 1.5rem; font-weight: 600; letter-spacing: -0.015em;
+    margin: 0 0 0.4rem; padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--doc-rule);
+  }
+  section > .sub { margin: 0 0 1.75rem; color: var(--doc-muted); max-width: 62ch; font-size: 0.92rem; }
+  h3 {
+    font-size: 0.78rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.09em; color: var(--doc-muted);
+    margin: 2rem 0 0.9rem;
+  }
+  h3:first-of-type { margin-top: 0; }
+
+  code, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+  /* --- swatches --- */
+  .swatches { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); }
+  .swatch {
+    border: 1px solid var(--doc-rule); border-radius: 0.9rem;
+    overflow: hidden; background: var(--doc-surface);
+  }
+  /* Explícito em display/width/padding para não herdar nada de outra regra:
+     esta amostra é um bloco de cor cheio, não um chip. */
+  .swatch > .sw-color {
+    display: block;
+    width: 100%;
+    height: 4.25rem;
+    padding: 0;
+    border-radius: 0;
+  }
+  .swatch .meta { padding: 0.6rem 0.75rem 0.7rem; }
+  .swatch .name { font-size: 0.82rem; font-weight: 600; line-height: 1.3; }
+  .swatch .token { font-size: 0.68rem; color: var(--doc-muted); word-break: break-all; line-height: 1.5; }
+  .swatch .hex { font-size: 0.7rem; color: var(--doc-muted); text-transform: uppercase; }
+
+  /* --- tabela --- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--doc-rule); border-radius: 0.9rem; background: var(--doc-surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.86rem; min-width: 34rem; }
+  th, td { text-align: left; padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--doc-rule); }
+  th { font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--doc-muted); }
+  tr:last-child td { border-bottom: none; }
+  td.num { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+  .pass, .fail {
+    font-size: 0.7rem; font-weight: 700; padding: 0.1rem 0.5rem;
+    border-radius: 999px; white-space: nowrap;
+  }
+  .pass { background: #dcfce7; color: #14532d; }
+  .fail { background: #fee2e2; color: #7f1d1d; }
+
+  /* --- palco: onde o produto real é renderizado --- */
+  .stage {
+    background: var(--canvas); color: var(--ink);
+    border: 1px solid var(--doc-rule); border-radius: 1rem;
+    padding: 1.5rem; font-family: "Poppins", sans-serif;
+  }
+  .stage-label {
+    font-family: "JetBrains Mono", monospace; font-size: 0.68rem;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--doc-muted); margin: 0 0 0.5rem;
+  }
+  .duo { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); }
+
+  /* --- componentes do produto --- */
+  .track-card {
+    background: var(--surface); border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card); overflow: hidden; text-align: left;
+  }
+  .track-cover { height: 5.5rem; }
+  .track-body { padding: 0.9rem 1rem 1.1rem; }
+  .track-title { font-weight: 600; font-size: 0.95rem; margin: 0 0 0.15rem; color: var(--ink); }
+  .track-meta { font-size: 0.75rem; color: var(--ink-muted); margin: 0 0 0.7rem; }
+  .bar { height: 0.4rem; border-radius: 999px; background: var(--surface-muted); overflow: hidden; }
+  .bar > i { display: block; height: 100%; border-radius: 999px; }
+  .track-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; gap: 0.5rem; }
+  .pct { font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .btn {
+    font: inherit; font-weight: 600; font-size: 0.88rem;
+    border: none; border-radius: var(--radius-control);
+    padding: 0.75rem 1.4rem; cursor: pointer;
+    background: var(--primary); color: #fff;
+    display: inline-flex; align-items: center; gap: 0.45rem;
+  }
+  .btn:hover { background: var(--primary-hover); }
+  .btn:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+  .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+  .btn.ghost { background: transparent; color: var(--primary); border: 2px solid var(--line); }
+  .btn.small { padding: 0.45rem 0.9rem; font-size: 0.8rem; }
+
+  .field {
+    display: flex; align-items: center; gap: 0.6rem;
+    border: 2px solid var(--violeta-cover); border-radius: 999px;
+    padding: 0.7rem 1.1rem; background: var(--surface); color: var(--ink-muted);
+    font-size: 0.88rem;
+  }
+  .field.err { border-color: var(--danger); }
+  .field-msg { font-size: 0.75rem; color: var(--danger); margin: 0.35rem 0 0 1.1rem; }
+
+  .node {
+    display: flex; align-items: center; gap: 0.75rem;
+    background: var(--surface); border-radius: var(--radius-control);
+    padding: 0.7rem 0.9rem; box-shadow: var(--shadow-card);
+  }
+  .node .dot {
+    width: 2.25rem; height: 2.25rem; border-radius: 999px; flex: none;
+    display: grid; place-items: center; font-size: 0.95rem; font-weight: 700;
+  }
+  .node .txt { min-width: 0; }
+  .node .t { font-size: 0.85rem; font-weight: 600; line-height: 1.3; }
+  .node .s { font-size: 0.72rem; color: var(--ink-muted); }
+  .node.locked { opacity: 0.72; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.25rem 0.7rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 600;
+  }
+
+  .feedback {
+    border-radius: var(--radius-control); padding: 0.85rem 1rem;
+    display: flex; gap: 0.65rem; align-items: flex-start;
+  }
+  .feedback .t { font-weight: 600; font-size: 0.88rem; margin: 0 0 0.15rem; }
+  .feedback .d { font-size: 0.8rem; margin: 0; line-height: 1.5; }
+
+  .touch-demo {
+    width: 3.5rem; height: 3.5rem; border-radius: var(--radius-control);
+    background: var(--primary); color: #fff; display: grid; place-items: center;
+    font-size: 0.7rem; font-weight: 700; text-align: center; line-height: 1.2;
+  }
+  .touch-bad {
+    width: 2rem; height: 2rem; border-radius: 0.5rem;
+    background: var(--surface-muted); border: 2px dashed var(--danger);
+    display: grid; place-items: center; font-size: 0.6rem; color: var(--danger); font-weight: 700;
+  }
+
+  .sidebar-demo {
+    background: var(--sidebar); border-radius: 1rem; padding: 1rem 0.75rem;
+    display: flex; flex-direction: column; gap: 0.2rem; color: #fff; min-width: 12rem;
+  }
+  .sidebar-demo .brand { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; padding: 0.3rem 0.75rem 0.9rem; opacity: 0.85; }
+  .sb-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.75rem; border-radius: 0.6rem; font-size: 0.83rem; }
+  .sb-item.on { background: #fff; color: var(--primary); font-weight: 600; }
+
+  .bottom-demo {
+    background: var(--surface); border-radius: 1rem; box-shadow: var(--shadow-card);
+    display: grid; grid-template-columns: repeat(4, 1fr); padding: 0.5rem;
+  }
+  .bn-item { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.55rem 0.2rem; border-radius: 0.6rem; font-size: 0.68rem; color: var(--ink-muted); min-height: 3.5rem; justify-content: center; }
+  .bn-item.on { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+
+  .glyph { width: 1.15rem; height: 1.15rem; flex: none; }
+
+  .rules { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); list-style: none; padding: 0; margin: 0; }
+  .rules li {
+    background: var(--doc-surface); border: 1px solid var(--doc-rule);
+    border-radius: 0.9rem; padding: 0.95rem 1.1rem; font-size: 0.86rem;
+    line-height: 1.55; color: var(--doc-muted);
+  }
+  .rules b { color: var(--doc-ink); display: block; font-weight: 600; margin-bottom: 0.2rem; font-size: 0.9rem; }
+
+  .type-row { display: flex; align-items: baseline; gap: 1.25rem; padding: 0.55rem 0; border-bottom: 1px dashed var(--doc-rule); flex-wrap: wrap; }
+  .type-row .spec { font-family: "JetBrains Mono", monospace; font-size: 0.7rem; color: var(--doc-muted); min-width: 9rem; }
+
+  .shape-row { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+  .shape-box { width: 6rem; height: 4.25rem; background: var(--doc-surface); border: 1px solid var(--doc-rule); display: grid; place-items: center; font-family: "JetBrains Mono", monospace; font-size: 0.68rem; color: var(--doc-muted); }
+
+  .note {
+    border-left: 3px solid var(--doc-accent); padding: 0.15rem 0 0.15rem 1rem;
+    color: var(--doc-muted); font-size: 0.88rem; max-width: 62ch; margin: 1.25rem 0 0;
+  }
+  .note b { color: var(--doc-ink); font-weight: 600; }
+
+  .scale-sample { background: var(--doc-surface); border: 1px solid var(--doc-rule); border-radius: 0.9rem; padding: 1rem 1.1rem; }
+  .scale-sample p { margin: 0.35rem 0 0; }
+
+  @media (max-width: 60rem) {
+    .shell { grid-template-columns: 1fr; gap: 2rem; padding-top: 2rem; }
+    .rail { position: static; }
+    .rail nav { flex-direction: row; flex-wrap: wrap; gap: 0.25rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+
+<div class="shell">
+  <aside class="rail">
+    <p class="rail-brand">LeDuc <span>Design</span></p>
+    <p class="rail-note">Contrato visual entre as telas e o código. Gerado a partir de <code>globals.css</code>.</p>
+    <nav>
+      <a href="#cor">Cor</a>
+      <a href="#tintas">Tintas por trilha</a>
+      <a href="#contraste">Contraste</a>
+      <a href="#acessibilidade">Modos de acessibilidade</a>
+      <a href="#tipografia">Tipografia</a>
+      <a href="#forma">Forma</a>
+      <a href="#toque">Alvo de toque</a>
+      <a href="#componentes">Componentes</a>
+      <a href="#navegacao">Navegação</a>
+      <a href="#regras">Regras de uso</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="lede">
+      <h1>Sistema de <span>Design</span></h1>
+      <p>Os tokens, componentes e estados do aplicativo do aluno do <strong>LeDuc</strong> — plataforma de alfabetização de jovens e adultos para comunidades ribeirinhas.</p>
+      <p>Os valores aqui não foram transcritos à mão: são os mesmos de <code>src/app/globals.css</code> e <code>src/config/palette.ts</code>. Quem for construir uma tela nova consulta esta página em vez de amostrar cor de uma captura.</p>
+      <p class="note"><b>Por que acessibilidade aparece em quase toda seção.</b> O público-alvo está aprendendo a ler. Fonte pequena, contraste fraco ou um botão apertado não são incômodos — são barreiras que impedem o uso. Por isso cada bloco abaixo mostra também como se comporta em fonte ampliada e em alto contraste.</p>
+    </header>
+
+    <section id="cor">
+      <h2>Cor</h2>
+      <p class="sub">Superfícies, texto e marca. Todo valor vem de <code>@theme</code> em <code>globals.css</code>; nenhum componente escolhe cor à mão.</p>
+
+      <h3>Superfícies e texto</h3>
+      <div class="swatches">
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#f7f5ff"></div><div class="meta"><div class="name">Canvas</div><div class="token mono">--color-canvas</div><div class="hex mono">#f7f5ff</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#ffffff;border-bottom:1px solid #e8e4f6"></div><div class="meta"><div class="name">Surface</div><div class="token mono">--color-surface</div><div class="hex mono">#ffffff</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#f3f0fd"></div><div class="meta"><div class="name">Surface muted</div><div class="token mono">--color-surface-muted</div><div class="hex mono">#f3f0fd</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#2c2a35"></div><div class="meta"><div class="name">Ink</div><div class="token mono">--color-ink</div><div class="hex mono">#2c2a35</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#6f6b7d"></div><div class="meta"><div class="name">Ink muted</div><div class="token mono">--color-ink-muted</div><div class="hex mono">#6f6b7d</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#e8e4f6"></div><div class="meta"><div class="name">Line</div><div class="token mono">--color-line</div><div class="hex mono">#e8e4f6</div></div></div>
+      </div>
+
+      <h3>Marca</h3>
+      <div class="swatches">
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#6d28d9"></div><div class="meta"><div class="name">Primary</div><div class="token mono">--color-primary</div><div class="hex mono">#6d28d9</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#5b21b6"></div><div class="meta"><div class="name">Primary hover</div><div class="token mono">--color-primary-hover</div><div class="hex mono">#5b21b6</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#ede9fe"></div><div class="meta"><div class="name">Primary soft</div><div class="token mono">--color-primary-soft</div><div class="hex mono">#ede9fe</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#6127c9"></div><div class="meta"><div class="name">Sidebar</div><div class="token mono">--color-sidebar</div><div class="hex mono">#6127c9</div></div></div>
+      </div>
+
+      <h3>Semânticos</h3>
+      <div class="swatches">
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#15803d"></div><div class="meta"><div class="name">Success</div><div class="token mono">--color-success</div><div class="hex mono">#15803d</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#b91c1c"></div><div class="meta"><div class="name">Danger</div><div class="token mono">--color-danger</div><div class="hex mono">#b91c1c</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#b45309"></div><div class="meta"><div class="name">Warning</div><div class="token mono">--color-warning</div><div class="hex mono">#b45309</div></div></div>
+      </div>
+    </section>
+
+    <section id="tintas">
+      <h2>Tintas por trilha</h2>
+      <p class="sub">Quatro tintas categóricas. A cor é atributo da <strong>trilha</strong> (<code>Track.colorToken</code>), não do módulo — decisão de produto tomada em 31/08. Cada tinta tem quatro papéis, e eles não são intercambiáveis.</p>
+
+      <div class="table-wrap" style="margin-bottom:1.25rem">
+        <table>
+          <thead><tr><th>Papel</th><th>Onde</th><th>Pode receber texto?</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">cover</td><td>Capa do card</td><td>Não — só imagem e ícone grande</td></tr>
+            <tr><td class="mono">solid</td><td>Barra de progresso, ícone cheio</td><td>Não — preenchimento apenas</td></tr>
+            <tr><td class="mono">soft</td><td>Fundo de chip</td><td>Sim, com <code>ink</code> por cima</td></tr>
+            <tr><td class="mono">ink</td><td>Texto e ícone da categoria</td><td>Sim — é a única variante AA</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#c4b5fd"></div><div class="meta"><div class="name">Violeta · cover</div><div class="token mono">--color-tint-violeta-cover</div><div class="hex mono">#c4b5fd</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#7c3aed"></div><div class="meta"><div class="name">Violeta · solid</div><div class="token mono">--color-tint-violeta-solid</div><div class="hex mono">#7c3aed</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#ede9fe"></div><div class="meta"><div class="name">Violeta · soft</div><div class="token mono">--color-tint-violeta-soft</div><div class="hex mono">#ede9fe</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#5b21b6"></div><div class="meta"><div class="name">Violeta · ink</div><div class="token mono">--color-tint-violeta-ink</div><div class="hex mono">#5b21b6</div></div></div>
+
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#a7f3c4"></div><div class="meta"><div class="name">Verde · cover</div><div class="token mono">--color-tint-verde-cover</div><div class="hex mono">#a7f3c4</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#16a34a"></div><div class="meta"><div class="name">Verde · solid</div><div class="token mono">--color-tint-verde-solid</div><div class="hex mono">#16a34a</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#dcfce7"></div><div class="meta"><div class="name">Verde · soft</div><div class="token mono">--color-tint-verde-soft</div><div class="hex mono">#dcfce7</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#15803d"></div><div class="meta"><div class="name">Verde · ink</div><div class="token mono">--color-tint-verde-ink</div><div class="hex mono">#15803d</div></div></div>
+
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#fdc9a0"></div><div class="meta"><div class="name">Pêssego · cover</div><div class="token mono">--color-tint-pessego-cover</div><div class="hex mono">#fdc9a0</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#ea580c"></div><div class="meta"><div class="name">Pêssego · solid</div><div class="token mono">--color-tint-pessego-solid</div><div class="hex mono">#ea580c</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#ffedd5"></div><div class="meta"><div class="name">Pêssego · soft</div><div class="token mono">--color-tint-pessego-soft</div><div class="hex mono">#ffedd5</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#c2410c"></div><div class="meta"><div class="name">Pêssego · ink</div><div class="token mono">--color-tint-pessego-ink</div><div class="hex mono">#c2410c</div></div></div>
+
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#a5c8f5"></div><div class="meta"><div class="name">Azul · cover</div><div class="token mono">--color-tint-azul-cover</div><div class="hex mono">#a5c8f5</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#2563eb"></div><div class="meta"><div class="name">Azul · solid</div><div class="token mono">--color-tint-azul-solid</div><div class="hex mono">#2563eb</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#dbeafe"></div><div class="meta"><div class="name">Azul · soft</div><div class="token mono">--color-tint-azul-soft</div><div class="hex mono">#dbeafe</div></div></div>
+        <div class="swatch"><div class="sw-color" style="display:block;width:100%;height:4.25rem;padding:0;border-radius:0;background:#1d4ed8"></div><div class="meta"><div class="name">Azul · ink</div><div class="token mono">--color-tint-azul-ink</div><div class="hex mono">#1d4ed8</div></div></div>
+      </div>
+    </section>
+
+    <section id="contraste">
+      <h2>Contraste medido</h2>
+      <p class="sub">Razões calculadas pela fórmula WCAG 2.1. AA para texto normal exige 4,5:1; AAA exige 7:1.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Combinação</th><th>Razão</th><th>AA</th><th>Uso</th></tr></thead>
+          <tbody>
+            <tr><td>Ink sobre Canvas</td><td class="num">13,07:1</td><td><span class="pass">AAA</span></td><td>Texto corrente</td></tr>
+            <tr><td>Primary sobre Surface</td><td class="num">7,10:1</td><td><span class="pass">AAA</span></td><td>Links, destaques de título</td></tr>
+            <tr><td>Branco sobre Sidebar</td><td class="num">7,95:1</td><td><span class="pass">AAA</span></td><td>Itens da barra lateral</td></tr>
+            <tr><td>Violeta ink sobre Surface</td><td class="num">8,98:1</td><td><span class="pass">AAA</span></td><td>Rótulo de categoria</td></tr>
+            <tr><td>Azul ink sobre Surface</td><td class="num">6,70:1</td><td><span class="pass">AA</span></td><td>Rótulo de categoria</td></tr>
+            <tr><td>Pêssego ink sobre Surface</td><td class="num">5,18:1</td><td><span class="pass">AA</span></td><td>Rótulo de categoria</td></tr>
+            <tr><td>Ink muted sobre Surface</td><td class="num">5,15:1</td><td><span class="pass">AA</span></td><td>Texto de apoio</td></tr>
+            <tr><td>Verde ink sobre Surface</td><td class="num">5,02:1</td><td><span class="pass">AA</span></td><td>Rótulo de categoria</td></tr>
+            <tr><td>Verde <em>solid</em> sobre Surface</td><td class="num">3,30:1</td><td><span class="fail">reprova</span></td><td>Só preenchimento — nunca texto</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note"><b>Duas leituras concretas desta tabela.</b> A última linha é a razão de a regra "<code>solid</code> nunca recebe texto" existir: 3,30:1 é confortável para uma barra de progresso e ilegível para uma legenda. E o cinza de apoio do mockup original, <code>#7a7688</code>, media 4,40:1 — reprovava em AA por pouco; foi escurecido para <code>#6f6b7d</code>, preservando o mesmo viés violeta.</p>
+    </section>
+
+    <section id="acessibilidade">
+      <h2>Modos de acessibilidade</h2>
+      <p class="sub">Aplicados por atributo no <code>&lt;html&gt;</code> e disponíveis pelo botão "Acessibilidade" da barra superior, de qualquer tela — não escondidos em configurações.</p>
+
+      <h3>Escala de fonte · <code>data-font-scale</code></h3>
+      <div class="duo">
+        <div class="scale-sample"><div class="stage-label">normal · 16px</div><p style="font-size:16px">Leia a palavra e toque no desenho certo.</p></div>
+        <div class="scale-sample"><div class="stage-label">grande · 18,4px</div><p style="font-size:18.4px">Leia a palavra e toque no desenho certo.</p></div>
+        <div class="scale-sample"><div class="stage-label">maior · 20,8px</div><p style="font-size:20.8px">Leia a palavra e toque no desenho certo.</p></div>
+      </div>
+
+      <h3>Contraste · <code>data-contrast</code></h3>
+      <div class="duo">
+        <div class="stage">
+          <p class="stage-label">padrão</p>
+          <div class="track-card">
+            <div class="track-cover" style="background:var(--violeta-cover)"></div>
+            <div class="track-body">
+              <p class="track-title">Alfabetização I</p>
+              <p class="track-meta">Lição 4 de 12</p>
+              <div class="bar"><i style="width:33%;background:var(--violeta-solid)"></i></div>
+              <div class="track-foot"><span class="pct" style="color:var(--violeta-ink)">33%</span><span class="chip" style="background:var(--violeta-soft);color:var(--violeta-ink)">Alfabetização</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="stage" data-contrast="alto">
+          <p class="stage-label">alto contraste</p>
+          <div class="track-card">
+            <div class="track-cover" style="background:var(--violeta-cover)"></div>
+            <div class="track-body">
+              <p class="track-title">Alfabetização I</p>
+              <p class="track-meta">Lição 4 de 12</p>
+              <div class="bar"><i style="width:33%;background:var(--violeta-solid)"></i></div>
+              <div class="track-foot"><span class="pct" style="color:var(--violeta-ink)">33%</span><span class="chip" style="background:var(--violeta-soft);color:var(--violeta-ink);border:1px solid var(--violeta-ink)">Alfabetização</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="note">Em alto contraste as quatro tintas escurecem até virarem quase pretas e a sombra vira contorno sólido. As tintas deixam de se distinguir entre si — é exatamente por isso que <b>a cor nunca pode ser o único sinal</b>: o rótulo "Alfabetização" continua ali, e é ele que carrega a informação.</p>
+    </section>
+
+    <section id="tipografia">
+      <h2>Tipografia</h2>
+      <p class="sub"><strong>Poppins</strong> em todos os pesos do produto. Letras geométricas e abertas, com <em>a</em> e <em>g</em> de andar único — a forma mais próxima da letra que se aprende a escrever à mão.</p>
+
+      <div class="type-row"><span class="spec">700 · 32px · -0,02em</span><span style="font-size:32px;font-weight:700;letter-spacing:-0.02em">Tudo bem, user?</span></div>
+      <div class="type-row"><span class="spec">700 · 24px</span><span style="font-size:24px;font-weight:700">Acessado recentemente</span></div>
+      <div class="type-row"><span class="spec">600 · 18px</span><span style="font-size:18px;font-weight:600">Seu progresso geral</span></div>
+      <div class="type-row"><span class="spec">500 · 16px</span><span style="font-size:16px;font-weight:500">Continuar trilha</span></div>
+      <div class="type-row"><span class="spec">400 · 15px</span><span style="font-size:15px">Leia a frase e escolha a palavra que falta.</span></div>
+      <div class="type-row"><span class="spec">400 · 13px · muted</span><span style="font-size:13px;color:var(--doc-muted)">Lição 4 de 12</span></div>
+
+      <p class="note"><b>O título de duas cores é assinatura, não enfeite.</b> "Tudo bem, <span style="color:var(--doc-accent);font-weight:700">user</span>?" aparece em três telas diferentes. É um componente — <code>HighlightHeading</code> — e não markup repetido a cada página.</p>
+    </section>
+
+    <section id="forma">
+      <h2>Forma</h2>
+      <p class="sub">Três raios e duas sombras. Nada fora desta lista.</p>
+      <div class="shape-row">
+        <div><div class="shape-box" style="border-radius:0.75rem">0.75rem</div><div class="stage-label" style="margin-top:0.4rem">--radius-control</div></div>
+        <div><div class="shape-box" style="border-radius:1.25rem">1.25rem</div><div class="stage-label" style="margin-top:0.4rem">--radius-card</div></div>
+        <div><div class="shape-box" style="border-radius:999px">999px</div><div class="stage-label" style="margin-top:0.4rem">--radius-pill</div></div>
+        <div><div class="shape-box" style="border-radius:1.25rem;border:none;box-shadow:0 4px 24px -6px rgb(76 29 149 / 0.1)">card</div><div class="stage-label" style="margin-top:0.4rem">--shadow-card</div></div>
+        <div><div class="shape-box" style="border-radius:1.25rem;border:none;box-shadow:0 10px 32px -8px rgb(76 29 149 / 0.18)">raised</div><div class="stage-label" style="margin-top:0.4rem">--shadow-raised</div></div>
+      </div>
+    </section>
+
+    <section id="toque">
+      <h2>Alvo de toque</h2>
+      <p class="sub">Mínimo de <strong>56px</strong> em qualquer controle da área do aluno — acima dos 44px usuais, porque o público inclui pessoas idosas e com pouca prática de celular.</p>
+      <div class="stage" style="display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <div class="touch-demo">56<br>px</div>
+          <div><div style="font-size:0.85rem;font-weight:600">Correto</div><div style="font-size:0.75rem;color:var(--ink-muted)">--spacing-touch</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <div class="touch-bad">32</div>
+          <div><div style="font-size:0.85rem;font-weight:600;color:var(--danger)">Insuficiente</div><div style="font-size:0.75rem;color:var(--ink-muted)">erra o toque com frequência</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="componentes">
+      <h2>Componentes</h2>
+      <p class="sub">Cada um em todos os estados que a interface precisa saber desenhar. Um componente sem estado vazio, de carregamento e de erro chega quebrado à produção.</p>
+
+      <h3>TrackCard · as quatro tintas</h3>
+      <div class="stage">
+        <div style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))">
+          <div class="track-card">
+            <div class="track-cover" style="background:var(--violeta-cover)"></div>
+            <div class="track-body"><p class="track-title">Alfabetização I</p><p class="track-meta">Lição 4 de 12</p><div class="bar"><i style="width:33%;background:var(--violeta-solid)"></i></div><div class="track-foot"><span class="pct" style="color:var(--violeta-ink)">33%</span></div></div>
+          </div>
+          <div class="track-card">
+            <div class="track-cover" style="background:var(--verde-cover)"></div>
+            <div class="track-body"><p class="track-title">Gramática I</p><p class="track-meta">Lição 2 de 10</p><div class="bar"><i style="width:20%;background:var(--verde-solid)"></i></div><div class="track-foot"><span class="pct" style="color:var(--verde-ink)">20%</span></div></div>
+          </div>
+          <div class="track-card">
+            <div class="track-cover" style="background:var(--pessego-cover)"></div>
+            <div class="track-body"><p class="track-title">Leitura I</p><p class="track-meta">Lição 6 de 15</p><div class="bar"><i style="width:33%;background:var(--pessego-solid)"></i></div><div class="track-foot"><span class="pct" style="color:var(--pessego-ink)">33%</span></div></div>
+          </div>
+          <div class="track-card">
+            <div class="track-cover" style="background:var(--azul-cover)"></div>
+            <div class="track-body"><p class="track-title">Interpretação I</p><p class="track-meta">Lição 3 de 8</p><div class="bar"><i style="width:25%;background:var(--azul-solid)"></i></div><div class="track-foot"><span class="pct" style="color:var(--azul-ink)">25%</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>TrackCard · variantes e estados</h3>
+      <div class="stage">
+        <div style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))">
+          <div>
+            <p class="stage-label">variante action</p>
+            <div class="track-card">
+              <div class="track-cover" style="background:var(--verde-cover)"></div>
+              <div class="track-body"><p class="track-title">Gramática VI</p><p class="track-meta">Lição 6 de 19</p><div class="bar"><i style="width:29%;background:var(--verde-solid)"></i></div><div class="track-foot"><button class="btn small" style="background:var(--verde-solid)">Continuar →</button><span class="pct" style="color:var(--verde-ink)">29%</span></div></div>
+            </div>
+          </div>
+          <div>
+            <p class="stage-label">carregando</p>
+            <div class="track-card">
+              <div class="track-cover" style="background:var(--surface-muted)"></div>
+              <div class="track-body"><div style="height:0.85rem;width:70%;border-radius:999px;background:var(--surface-muted);margin-bottom:0.5rem"></div><div style="height:0.65rem;width:45%;border-radius:999px;background:var(--surface-muted);margin-bottom:0.75rem"></div><div class="bar"></div></div>
+            </div>
+          </div>
+          <div>
+            <p class="stage-label">vazio</p>
+            <div class="track-card" style="box-shadow:none;border:2px dashed var(--line)">
+              <div class="track-body" style="text-align:center;padding:1.75rem 1rem">
+                <p style="font-size:0.88rem;font-weight:600;margin:0 0 0.25rem">Nenhuma trilha ainda</p>
+                <p style="font-size:0.78rem;color:var(--ink-muted);margin:0 0 0.85rem">Escolha uma trilha para começar seus estudos.</p>
+                <button class="btn small">Ver trilhas</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>LessonNode · os quatro estados de desbloqueio</h3>
+      <div class="stage">
+        <div style="display:grid;gap:0.65rem;max-width:24rem">
+          <div class="node">
+            <div class="dot" style="background:var(--success-soft);color:var(--success)">✓</div>
+            <div class="txt"><div class="t">As vogais</div><div class="s">Concluída · domínio 100%</div></div>
+          </div>
+          <div class="node">
+            <div class="dot" style="background:var(--primary);color:#fff">4</div>
+            <div class="txt"><div class="t">Palavras do rio</div><div class="s">Em andamento</div></div>
+          </div>
+          <div class="node">
+            <div class="dot" style="background:var(--primary-soft);color:var(--primary)">5</div>
+            <div class="txt"><div class="t">Sílabas com T e D</div><div class="s">Disponível</div></div>
+          </div>
+          <div class="node locked">
+            <div class="dot" style="background:var(--surface-muted);color:var(--ink-muted)">
+              <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
+            </div>
+            <div class="txt"><div class="t">Nomes e sobrenomes</div><div class="s">Bloqueada · conclua a lição anterior</div></div>
+          </div>
+        </div>
+      </div>
+      <p class="note">O estado bloqueado usa <b>três sinais somados</b>: cadeado, opacidade e a frase que diz o que fazer para destravar. Opacidade sozinha não comunica nada a quem não lê fluentemente.</p>
+
+      <h3>Botões e campos</h3>
+      <div class="stage">
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1.25rem">
+          <button class="btn">Entrar</button>
+          <button class="btn" style="background:var(--primary-hover)">Hover</button>
+          <button class="btn ghost">Editar perfil</button>
+          <button class="btn" disabled>Desabilitado</button>
+          <button class="btn" style="gap:0.6rem"><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"/></svg>Carregando</button>
+        </div>
+        <div style="display:grid;gap:0.85rem;max-width:24rem">
+          <div class="field">
+            <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            E-mail
+          </div>
+          <div>
+            <div class="field err">
+              <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
+              Senha
+            </div>
+            <p class="field-msg">Digite sua senha para continuar.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Feedback imediato · por item</h3>
+      <div class="stage">
+        <div style="display:grid;gap:0.75rem;max-width:32rem">
+          <div class="feedback" style="background:var(--success-soft)">
+            <svg class="glyph" style="color:var(--success);margin-top:0.15rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m4 12 6 6L20 6"/></svg>
+            <div><p class="t" style="color:var(--success)">Você acertou!</p><p class="d">A, E, I, O e U são as vogais. As outras letras são consoantes.</p></div>
+          </div>
+          <div class="feedback" style="background:var(--danger-soft)">
+            <svg class="glyph" style="color:var(--danger);margin-top:0.15rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            <div><p class="t" style="color:var(--danger)">Ainda não</p><p class="d">O B é uma consoante. As vogais são A, E, I, O e U. Tente de novo.</p></div>
+          </div>
+        </div>
+      </div>
+      <p class="note">Toda regra de feedback está aqui: <b>ícone além da cor</b>, <b>explicação do porquê</b> (exigida pelas regras de negócio) e nenhuma linguagem de punição — "Ainda não", não "Errado". O bloco é anunciado por <code>aria-live</code> e, com o som ligado, lido em voz alta.</p>
+
+      <h3>Chips de módulo</h3>
+      <div class="stage" style="display:flex;gap:0.6rem;flex-wrap:wrap">
+        <span class="chip" style="background:var(--violeta-soft);color:var(--violeta-ink)">Alfabetização</span>
+        <span class="chip" style="background:var(--verde-soft);color:var(--verde-ink)">Gramática</span>
+        <span class="chip" style="background:var(--pessego-soft);color:var(--pessego-ink)">Leitura</span>
+        <span class="chip" style="background:var(--azul-soft);color:var(--azul-ink)">Interpretação</span>
+        <span class="chip" style="background:var(--primary-soft);color:var(--primary)">Trilha em andamento</span>
+      </div>
+    </section>
+
+    <section id="navegacao">
+      <h2>Navegação</h2>
+      <p class="sub">Uma lista só — <code>config/navigation.ts</code> — em duas apresentações. Duas listas mantidas em paralelo divergem; esta não pode.</p>
+      <div class="duo">
+        <div class="stage">
+          <p class="stage-label">desktop · SideNav</p>
+          <div class="sidebar-demo">
+            <div class="brand">LEDUC INSTITUCIONAL</div>
+            <div class="sb-item on"><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11 12 3l9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Início</div>
+            <div class="sb-item"><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 14 9 5 9-5"/></svg>Trilhas</div>
+            <div class="sb-item"><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="8" cy="18" r="2" fill="currentColor" stroke="none"/></svg>Progresso</div>
+            <div class="sb-item"><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Perfil</div>
+          </div>
+        </div>
+        <div class="stage">
+          <p class="stage-label">mobile · BottomNav + gaveta</p>
+          <div class="bottom-demo">
+            <div class="bn-item on"><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11 12 3l9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Início</div>
+            <div class="bn-item"><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 14 9 5 9-5"/></svg>Trilhas</div>
+            <div class="bn-item"><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Progresso</div>
+            <div class="bn-item"><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Perfil</div>
+          </div>
+          <p style="font-size:0.78rem;color:var(--ink-muted);margin:0.85rem 0 0">Notificações, Configurações e Ajuda migram para a gaveta. Cada alvo tem 56px de altura.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="regras">
+      <h2>Regras de uso</h2>
+      <p class="sub">Cinco decisões que valem mais do que qualquer valor de token, porque decorrem de quem usa o produto.</p>
+      <ul class="rules">
+        <li><b>Cor nunca é o único sinal</b>Todo card e chip carrega ícone e rótulo além da tinta. Em alto contraste as quatro tintas convergem para quase preto — sem o rótulo, a informação some.</li>
+        <li><b>Texto colorido só em <code>ink</code></b><code>cover</code> e <code>solid</code> são preenchimentos. Usar <code>solid</code> como cor de texto produz 3,30:1 e reprova em AA.</li>
+        <li><b>56px de alvo mínimo</b>Acima dos 44px usuais. O público inclui pessoas idosas, com pouca prática de toque e frequentemente segurando o aparelho com uma mão só.</li>
+        <li><b>Nenhum hex fora de <code>globals.css</code></b>Uma busca por valores hexadecimais literais no restante do código deve voltar vazia. É o que mantém esta página verdadeira.</li>
+        <li><b>Nenhuma linguagem de punição</b>Sem vidas, sem perda de XP, sem "errado". O erro é "Ainda não", sempre seguido da explicação e de um caminho para tentar de novo.</li>
+      </ul>
+    </section>
+  </main>
+</div>

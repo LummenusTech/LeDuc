@@ -1,0 +1,134 @@
+"use client";
+
+import { Check, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
+
+import { BrandMark } from "@/components/layout/brand-mark";
+import { Button } from "@/components/ui/button";
+import { ROUTES } from "@/config/routes";
+import { useSignIn } from "@/features/auth/hooks";
+import { cn } from "@/lib/cn";
+
+/**
+ * Entrada por e-mail e senha, conforme a tela recebida.
+ *
+ * Cuidados que a tela já previa e que aqui viram comportamento: "salvar minha
+ * senha" marcado por padrão e botão de revelar a senha — os dois reduzem o
+ * atrito de digitar credenciais para quem ainda está em alfabetização.
+ */
+export function SignInForm() {
+  const router = useRouter();
+  const signIn = useSignIn();
+
+  const [email, setEmail] = useState("user.estudante@gmail.com");
+  const [password, setPassword] = useState("leduc123");
+  const [rememberMe, setRememberMe] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    try {
+      await signIn.mutateAsync({ email, password, rememberMe });
+      router.push(ROUTES.student.home);
+    } catch {
+      // O erro é exibido abaixo, a partir de `signIn.error`.
+    }
+  }
+
+  return (
+    <div className="relative w-full max-w-md rounded-card bg-surface p-7 shadow-raised sm:p-9">
+      <div className="flex justify-center">
+        <BrandMark className="size-14 bg-primary-soft" />
+      </div>
+
+      <h1 className="mt-5 text-center text-2xl font-bold leading-tight text-ink sm:text-3xl">
+        Bem-vindo,
+        <br />
+        <span className="text-primary">estudante</span> ao LeDuc
+      </h1>
+      <p className="mt-2 text-center text-sm text-ink-muted">
+        Construindo seu futuro
+      </p>
+
+      <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
+        <label className="block">
+          <span className="sr-only">E-mail</span>
+          <div className="flex min-h-touch items-center gap-3 rounded-pill border-2 border-tint-violeta-cover bg-surface px-5 focus-within:border-primary">
+            <Mail className="size-5 shrink-0 text-primary" aria-hidden />
+            <input
+              type="email"
+              name="email"
+              autoComplete="email"
+              required
+              placeholder="E-mail"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted"
+            />
+          </div>
+        </label>
+
+        <label className="block">
+          <span className="sr-only">Senha</span>
+          <div className="flex min-h-touch items-center gap-3 rounded-pill border-2 border-tint-violeta-cover bg-surface px-5 focus-within:border-primary">
+            <Lock className="size-5 shrink-0 text-primary" aria-hidden />
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              autoComplete="current-password"
+              required
+              placeholder="Senha"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((current) => !current)}
+              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              aria-pressed={showPassword}
+              className="shrink-0 rounded-full p-1 text-ink-muted hover:text-primary"
+            >
+              {showPassword ? (
+                <EyeOff className="size-5" aria-hidden />
+              ) : (
+                <Eye className="size-5" aria-hidden />
+              )}
+            </button>
+          </div>
+        </label>
+
+        <button
+          type="button"
+          onClick={() => setRememberMe((current) => !current)}
+          aria-pressed={rememberMe}
+          className="flex items-center gap-2.5 self-start rounded-control py-1 text-sm text-ink-muted"
+        >
+          <span
+            className={cn(
+              "grid size-5 shrink-0 place-items-center rounded border-2 transition-colors",
+              rememberMe
+                ? "border-primary bg-primary text-ink-inverse"
+                : "border-line bg-surface",
+            )}
+            aria-hidden
+          >
+            {rememberMe && <Check className="size-3.5" strokeWidth={3} />}
+          </span>
+          Salvar a minha senha
+        </button>
+
+        {signIn.error && (
+          <p role="alert" className="text-sm font-medium text-danger">
+            {signIn.error.message}
+          </p>
+        )}
+
+        <Button type="submit" isLoading={signIn.isPending} className="w-full">
+          {signIn.isPending ? "Entrando…" : "Entrar"}
+        </Button>
+      </form>
+    </div>
+  );
+}
