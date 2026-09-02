@@ -15,6 +15,7 @@ import {
   summarizeSession,
   type ActivitySession,
 } from "@/core/domain/activity-session";
+import { filterPublished } from "@/core/domain/permissions";
 import {
   enqueue as enqueueSyncItem,
   markSent as markSyncSent,
@@ -120,7 +121,12 @@ const contentRepository: ContentRepository = {
   },
 
   async listTracks(params: ListTracksParams = {}) {
-    let results = [...MOCK_TRACK_SUMMARIES];
+    const publishedIds = new Set(
+      filterPublished(MOCK_TRACKS).map((track) => track.id),
+    );
+    let results = MOCK_TRACK_SUMMARIES.filter((track) =>
+      publishedIds.has(track.id),
+    );
 
     if (params.query?.trim()) {
       results = results.filter((track) => matchesQuery(track, params.query!));
@@ -143,11 +149,18 @@ const contentRepository: ContentRepository = {
   },
 
   async getTrack(trackId: string) {
-    return delay(MOCK_TRACKS.find((track) => track.id === trackId) ?? null);
+    const [track] = filterPublished(
+      MOCK_TRACKS.filter((item) => item.id === trackId),
+    );
+    return delay(track ?? null);
   },
 
   async listLessons(trackId: string) {
-    return delay(MOCK_LESSONS.filter((lesson) => lesson.trackId === trackId));
+    return delay(
+      filterPublished(
+        MOCK_LESSONS.filter((lesson) => lesson.trackId === trackId),
+      ),
+    );
   },
 
   async listActivities(lessonId: string) {

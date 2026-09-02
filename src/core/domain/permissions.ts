@@ -1,5 +1,5 @@
 import { ROLE_ACTIONS, type Action } from "@/config/permissions";
-import type { User, UserRole } from "@/core/domain/types";
+import type { ContentStatus, User, UserRole } from "@/core/domain/types";
 
 /**
  * Permissões (RN-Z1 a RN-Z4).
@@ -84,4 +84,17 @@ export function canSeeContentStatus(
 ): boolean {
   if (status === "published") return true;
   return roleCan(role, "content:read_draft");
+}
+
+/**
+ * Filtra qualquer coleção de conteúdo para o que já foi publicado (RN-P7).
+ *
+ * Existe para ser chamada pela camada de dados, nunca só pela interface — um
+ * componente que só deixasse de desenhar o rascunho ainda teria recebido o
+ * dado, e recebê-lo já é o vazamento que a regra proíbe.
+ */
+export function filterPublished<T extends { status: ContentStatus }>(
+  items: readonly T[],
+): T[] {
+  return items.filter((item) => item.status === "published");
 }

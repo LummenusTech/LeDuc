@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   can,
   canSeeContentStatus,
+  filterPublished,
   roleCan,
   type Actor,
 } from "@/core/domain/permissions";
@@ -99,5 +100,32 @@ describe("roleCan", () => {
   it("é a base da matriz, sem olhar escopo", () => {
     expect(roleCan("student", "content:read_published")).toBe(true);
     expect(roleCan("student", "management:manage_users")).toBe(false);
+  });
+});
+
+describe("filterPublished", () => {
+  it("RN-P7: mantém só o que está publicado", () => {
+    const items = [
+      { id: "1", status: "published" as const },
+      { id: "2", status: "draft" as const },
+      { id: "3", status: "in_review" as const },
+      { id: "4", status: "published" as const },
+    ];
+
+    expect(filterPublished(items).map((item) => item.id)).toEqual(["1", "4"]);
+  });
+
+  it("lista vazia continua vazia", () => {
+    expect(filterPublished([])).toEqual([]);
+  });
+});
+
+describe("gestor — management:read_communities", () => {
+  it("lê os dados agregados de todas as comunidades", () => {
+    expect(can(manager, "management:read_communities")).toBe(true);
+  });
+
+  it("professor não lê agregados de comunidades", () => {
+    expect(can(teacher, "management:read_communities")).toBe(false);
   });
 });
