@@ -41,6 +41,10 @@ import {
   MOCK_USER_STATS,
 } from "@/core/data/mock/fixtures";
 
+function publishedTrackIds(): Set<string> {
+  return new Set(filterPublished(MOCK_TRACKS).map((track) => track.id));
+}
+
 /**
  * Implementação mock dos repositórios.
  *
@@ -127,9 +131,7 @@ const contentRepository: ContentRepository = {
   },
 
   async listTracks(params: ListTracksParams = {}) {
-    const publishedIds = new Set(
-      filterPublished(MOCK_TRACKS).map((track) => track.id),
-    );
+    const publishedIds = publishedTrackIds();
     let results = MOCK_TRACK_SUMMARIES.filter((track) =>
       publishedIds.has(track.id),
     );
@@ -170,20 +172,29 @@ const contentRepository: ContentRepository = {
   },
 
   async listActivities(lessonId: string) {
+    const lesson = MOCK_LESSONS.find((item) => item.id === lessonId);
+    if (!lesson || filterPublished([lesson]).length === 0) return delay([]);
+
     return delay(
       MOCK_ACTIVITIES.filter((activity) => activity.lessonId === lessonId),
     );
   },
 
   async listItems(activityId: string) {
+    const activity = MOCK_ACTIVITIES.find((item) => item.id === activityId);
+    const lesson =
+      activity && MOCK_LESSONS.find((item) => item.id === activity.lessonId);
+    if (!lesson || filterPublished([lesson]).length === 0) return delay([]);
+
     return delay(MOCK_ITEMS.filter((item) => item.activityId === activityId));
   },
 };
 
 const progressRepository: ProgressRepository = {
   async listRecentTracks(limit = 4) {
+    const publishedIds = publishedTrackIds();
     const recent = MOCK_TRACK_SUMMARIES.filter(
-      (track) => track.lastAccessedAt !== null,
+      (track) => track.lastAccessedAt !== null && publishedIds.has(track.id),
     )
       .sort((a, b) => (a.lastAccessedAt! < b.lastAccessedAt! ? 1 : -1))
       .slice(0, limit);
@@ -192,9 +203,11 @@ const progressRepository: ProgressRepository = {
   },
 
   async getContinueTrack() {
+    const publishedIds = publishedTrackIds();
     return delay(
-      MOCK_TRACK_SUMMARIES.find((track) => track.id === CONTINUE_TRACK_ID) ??
-        null,
+      MOCK_TRACK_SUMMARIES.find(
+        (track) => track.id === CONTINUE_TRACK_ID && publishedIds.has(track.id),
+      ) ?? null,
     );
   },
 

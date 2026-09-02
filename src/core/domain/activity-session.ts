@@ -319,7 +319,7 @@ export function toAttempts(session: ActivitySession): Attempt[] {
     if (state.resolution === null || state.resolution === "pending_review") {
       continue;
     }
-    if (state.answeredAt === null) continue;
+    if (!state.answeredAt) continue;
 
     const timeSpentSeconds = Math.max(
       0,
