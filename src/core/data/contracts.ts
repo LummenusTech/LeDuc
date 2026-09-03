@@ -12,6 +12,7 @@ import type {
 } from "@/core/domain/activity-session";
 import type { UnlockedAchievement } from "@/core/domain/achievements";
 import type { GradeOutcome } from "@/core/domain/grading";
+import type { DerivedNotification } from "@/core/domain/scheduling";
 import type { SyncItem } from "@/core/domain/sync";
 import type {
   Activity,
@@ -21,6 +22,7 @@ import type {
   LessonProgress,
   Module,
   Track,
+  User,
 } from "@/core/domain/types";
 
 /**
@@ -41,6 +43,8 @@ export interface AuthRepository {
   signIn(input: SignInInput): Promise<Session>;
   signOut(): Promise<void>;
   getSession(): Promise<Session | null>;
+  /** Campos editáveis do perfil — o resto do `User` (papel, id) nunca muda por aqui. */
+  updateProfile(patch: Partial<Pick<User, "name" | "avatarUrl">>): Promise<Session>;
 }
 
 export type ListTracksParams = {
@@ -69,12 +73,24 @@ export interface ProgressRepository {
   getContinueTrack(): Promise<TrackSummary | null>;
   /** Progresso das lições de uma trilha, indexado por id de lição. */
   getTrackProgress(trackId: string): Promise<Record<string, LessonProgress>>;
+  /** Histórico de lições com progresso, de qualquer trilha, mais recente primeiro. */
+  listLessonHistory(): Promise<LessonHistoryEntry[]>;
+  /** Avisos derivados do estado atual (RN-C2) — nada digitado à mão. */
+  listNotifications(): Promise<DerivedNotification[]>;
 }
+
+export type LessonHistoryEntry = {
+  lesson: Lesson;
+  track: Track;
+  progress: LessonProgress;
+};
 
 export interface GamificationRepository {
   getSummary(): Promise<GamificationSummary>;
   /** Registra o acesso de hoje (RN-O1). Idempotente — chamar várias vezes no mesmo dia não altera a ofensiva. */
   recordAccess(): Promise<void>;
+  /** Códigos já desbloqueados — cruza com `config/achievements.ts` na tela. */
+  listUnlockedAchievements(): Promise<string[]>;
 }
 
 export interface MetricsRepository {

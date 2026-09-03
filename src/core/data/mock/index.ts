@@ -22,6 +22,8 @@ import {
 } from "@/core/domain/achievements";
 import { computeMasteryScore, reconcileMasteryScore } from "@/core/domain/mastery";
 import { filterPublished } from "@/core/domain/permissions";
+import { selectReviewCandidates } from "@/core/domain/review";
+import { deriveNotifications } from "@/core/domain/scheduling";
 import { ValidationError } from "@/core/domain/errors";
 import { toDayKey } from "@/core/domain/streak";
 import {
@@ -51,6 +53,7 @@ import {
   currentXpTotal,
   readActivityCompletions,
   readProgress,
+  readStreakDays,
   readUnlockedAchievements,
   readXpLedger,
   recordAccessToday,
@@ -130,22 +133,35 @@ function delay<T>(value: T, ms = LATENCY_MS): Promise<T> {
 
 const SESSION_KEY = "leduc.session";
 
+function isSession(value: unknown): value is Session {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "user" in value &&
+    typeof (value as { user: unknown }).user === "object"
+  );
+}
+
 function readStoredSession(): Session | null {
   if (typeof window === "undefined") return null;
   try {
-    return window.localStorage.getItem(SESSION_KEY)
-      ? { user: MOCK_USER }
-      : null;
+    const raw = window.localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    // Formato antigo era só a string "1" — `JSON.parse` não falha nisso, vira
+    // o número 1. Sem essa checagem, uma sessão pré-migração passaria como
+    // válida com `user` inexistente.
+    return isSession(parsed) ? parsed : null;
   } catch {
     return null;
   }
 }
 
-function writeStoredSession(active: boolean) {
+function writeStoredSession(session: Session | null) {
   if (typeof window === "undefined") return;
   try {
-    if (active) {
-      window.localStorage.setItem(SESSION_KEY, "1");
+    if (session) {
+      window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
     } else {
       window.localStorage.removeItem(SESSION_KEY);
     }
@@ -166,17 +182,25 @@ const authRepository: AuthRepository = {
       );
     }
 
-    writeStoredSession(true);
-    return { user: { ...MOCK_USER, email } };
+    const session: Session = { user: { ...MOCK_USER, email } };
+    writeStoredSession(session);
+    return session;
   },
 
   async signOut() {
-    writeStoredSession(false);
+    writeStoredSession(null);
     await delay(null, 120);
   },
 
   async getSession() {
     return delay(readStoredSession(), 80);
+  },
+
+  async updateProfile(patch) {
+    const current = readStoredSession() ?? { user: MOCK_USER };
+    const updated: Session = { user: { ...current.user, ...patch } };
+    writeStoredSession(updated);
+    return delay(updated, 300);
   },
 };
 
@@ -300,6 +324,47 @@ const progressRepository: ProgressRepository = {
     );
     return delay(filtered);
   },
+
+  async listLessonHistory() {
+    const progress = readProgress();
+
+    const entries = Object.entries(progress).flatMap(([lessonId, entry]) => {
+      const lesson = MOCK_LESSONS.find((item) => item.id === lessonId);
+      const track = lesson && MOCK_TRACKS.find((item) => item.id === lesson.trackId);
+      if (!lesson || !track) return [];
+      return [{ lesson, track, progress: entry }];
+    });
+
+    entries.sort((a, b) => {
+      const aKey = a.progress.completedAt ?? "";
+      const bKey = b.progress.completedAt ?? "";
+      return aKey < bKey ? 1 : -1;
+    });
+
+    return delay(entries, 80);
+  },
+
+  async listNotifications() {
+    const now = new Date().toISOString();
+    const progress = readProgress();
+    const streak = currentStreak();
+    const reviewCandidates = selectReviewCandidates(Object.values(progress), {
+      now,
+    });
+
+    const notifications = deriveNotifications(
+      {
+        announcements: [],
+        events: [],
+        accessDays: readStreakDays(),
+        currentStreakDays: streak.current,
+        pendingReviewCount: reviewCandidates.length,
+      },
+      { now },
+    );
+
+    return delay(notifications, 100);
+  },
 };
 
 const gamificationRepository: GamificationRepository = {
@@ -310,6 +375,10 @@ const gamificationRepository: GamificationRepository = {
   async recordAccess() {
     recordAccessToday();
     await delay(null, 40);
+  },
+
+  async listUnlockedAchievements() {
+    return delay(readUnlockedAchievements(), 60);
   },
 };
 

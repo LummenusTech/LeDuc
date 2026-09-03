@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { SignInInput } from "@/core/data/contracts";
 import { dataSource } from "@/core/data/provider";
 import { queryKeys } from "@/core/data/query-keys";
+import type { User } from "@/core/domain/types";
 
 export function useSession() {
   return useQuery({
@@ -32,6 +33,18 @@ export function useSignOut() {
     onSuccess: () => {
       queryClient.setQueryData(queryKeys.session, null);
       queryClient.clear();
+    },
+  });
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (patch: Partial<Pick<User, "name" | "avatarUrl">>) =>
+      dataSource.auth.updateProfile(patch),
+    onSuccess: (session) => {
+      queryClient.setQueryData(queryKeys.session, session);
     },
   });
 }

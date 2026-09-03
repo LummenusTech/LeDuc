@@ -9,6 +9,7 @@ import { BrandMark } from "@/components/layout/brand-mark";
 import { BottomNav, DrawerNav, SideNav } from "@/components/layout/nav-items";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/config/routes";
+import { useRecordAccessOnMount } from "@/features/analytics/hooks";
 
 /**
  * Casca do aplicativo do aluno.
@@ -18,6 +19,7 @@ import { ROUTES } from "@/config/routes";
  */
 export function AppShell({ children }: { children: ReactNode }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  useRecordAccessOnMount();
 
   return (
     <div className="flex min-h-dvh bg-canvas">

@@ -26,3 +26,17 @@ export function useTrackProgress(trackId: string) {
     enabled: Boolean(trackId),
   });
 }
+
+export function useLessonHistory() {
+  return useQuery({
+    queryKey: queryKeys.lessonHistory,
+    queryFn: () => dataSource.progress.listLessonHistory(),
+  });
+}
+
+export function useNotifications() {
+  return useQuery({
+    queryKey: queryKeys.notifications,
+    queryFn: () => dataSource.progress.listNotifications(),
+  });
+}

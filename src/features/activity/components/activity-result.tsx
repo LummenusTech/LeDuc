@@ -3,41 +3,19 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import {
-  Award,
-  BookOpen,
-  Clock,
-  Flame,
-  Medal,
-  Repeat,
-  Sparkles,
-  Star,
-  Target,
-  Trophy,
-  type LucideIcon,
-} from "lucide-react";
+import { Award, Clock, Sparkles, Trophy, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, Chip } from "@/components/ui/primitives";
 import { ROUTES } from "@/config/routes";
 import { queryKeys } from "@/core/data/query-keys";
-import { ACHIEVEMENTS, type AchievementIcon } from "@/config/achievements";
+import { ACHIEVEMENTS } from "@/config/achievements";
+import { AchievementIcon } from "@/features/analytics/components/achievement-icon";
 import {
   clearActivityResult,
   readActivityResult,
 } from "@/features/activity/result-store";
 import { cn } from "@/lib/cn";
-
-const ACHIEVEMENT_ICONS: Record<AchievementIcon, LucideIcon> = {
-  "first-step": Sparkles,
-  flame: Flame,
-  star: Star,
-  trophy: Trophy,
-  book: BookOpen,
-  target: Target,
-  repeat: Repeat,
-  medal: Medal,
-};
 
 /**
  * Tela de resultado — na verdade três, escolhidas pelo que
@@ -216,12 +194,11 @@ function Stat({
 function AchievementCard({ code }: { code: string }) {
   const definition = ACHIEVEMENTS.find((item) => item.code === code);
   if (!definition) return null;
-  const Icon = ACHIEVEMENT_ICONS[definition.icon];
 
   return (
     <Card className="flex items-center gap-3 border-2 border-tint-pessego-cover bg-tint-pessego-soft px-4 py-3.5">
       <span className="grid size-11 shrink-0 place-items-center rounded-full bg-tint-pessego-solid text-ink-inverse">
-        <Icon className="size-5" aria-hidden />
+        <AchievementIcon icon={definition.icon} className="size-5" />
       </span>
       <div>
         <Chip>Nova conquista</Chip>

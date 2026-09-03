@@ -172,12 +172,16 @@ export function useActivityPlayer({
       // Tudo que qualquer outra tela lê e que este resultado mudou.
       queryClient.invalidateQueries({ queryKey: queryKeys.gamification });
       queryClient.invalidateQueries({
+        queryKey: queryKeys.unlockedAchievements,
+      });
+      queryClient.invalidateQueries({
         queryKey: queryKeys.tracks.progress(trackId),
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.completedActivityIds(lessonId),
       });
       queryClient.invalidateQueries({ queryKey: queryKeys.tracks.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.lessonHistory });
 
       router.push(ROUTES.student.activityResult(lessonId, activityId));
     } catch {

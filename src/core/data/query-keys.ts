@@ -20,6 +20,9 @@ export const queryKeys = {
     progress: (trackId: string) => ["tracks", "progress", trackId] as const,
   },
 
+  lessonHistory: ["lesson-history"] as const,
+  notifications: ["notifications"] as const,
+
   lessons: {
     byTrack: (trackId: string) => ["lessons", trackId] as const,
     detail: (lessonId: string) => ["lessons", "detail", lessonId] as const,
@@ -47,6 +50,7 @@ export const queryKeys = {
     ["activity-result", activityId] as const,
 
   gamification: ["gamification"] as const,
+  unlockedAchievements: ["unlocked-achievements"] as const,
 
   metrics: {
     stats: ["metrics", "stats"] as const,
