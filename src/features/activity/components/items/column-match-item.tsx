@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useSpeak } from "@/components/a11y/use-speak";
 import { cn } from "@/lib/cn";
 import type { ItemAnswer } from "@/core/domain/grading";
 import type { Item } from "@/core/domain/types";
@@ -27,12 +28,14 @@ export function ColumnMatchItem({
     [],
   );
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
+  const { speak } = useSpeak();
 
   const pairedLeftIds = new Set(pairs.map((pair) => pair.leftId));
   const pairedRightIds = new Set(pairs.map((pair) => pair.rightId));
 
-  function tapLeft(leftId: string) {
+  function tapLeft(leftId: string, label: string) {
     if (disabled) return;
+    speak(label);
     if (pairedLeftIds.has(leftId)) {
       setPairs((current) => current.filter((pair) => pair.leftId !== leftId));
       return;
@@ -40,8 +43,9 @@ export function ColumnMatchItem({
     setSelectedLeft(leftId);
   }
 
-  function tapRight(rightId: string) {
+  function tapRight(rightId: string, label: string) {
     if (disabled) return;
+    speak(label);
     if (pairedRightIds.has(rightId)) {
       setPairs((current) =>
         current.filter((pair) => pair.rightId !== rightId),
@@ -68,7 +72,7 @@ export function ColumnMatchItem({
               type="button"
               disabled={disabled}
               aria-pressed={pairedLeftIds.has(choice.id)}
-              onClick={() => tapLeft(choice.id)}
+              onClick={() => tapLeft(choice.id, choice.label)}
               className={cn(
                 "min-h-touch rounded-control border-2 px-4 text-left font-medium transition-colors",
                 pairedLeftIds.has(choice.id)
@@ -90,7 +94,7 @@ export function ColumnMatchItem({
               type="button"
               disabled={disabled}
               aria-pressed={pairedRightIds.has(choice.id)}
-              onClick={() => tapRight(choice.id)}
+              onClick={() => tapRight(choice.id, choice.label)}
               className={cn(
                 "min-h-touch rounded-control border-2 px-4 text-left font-medium transition-colors",
                 pairedRightIds.has(choice.id)

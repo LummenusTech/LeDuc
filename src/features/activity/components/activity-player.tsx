@@ -7,6 +7,8 @@ import { Check, ChevronLeft, Lightbulb, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/feedback/states";
 import { Chip, ProgressBar, Skeleton } from "@/components/ui/primitives";
+import { SpeakButton } from "@/components/a11y/speak-button";
+import { useSpeak } from "@/components/a11y/use-speak";
 import { MAX_ATTEMPTS_PER_ITEM } from "@/config/activity-rules";
 import { ROUTES } from "@/config/routes";
 import { DIFFICULTY_LABELS } from "@/core/domain/types";
@@ -33,6 +35,7 @@ export function ActivityPlayer({
   isReview: boolean;
 }) {
   const player = useActivityPlayer({ lessonId, trackId, activityId, isReview });
+  const { speak } = useSpeak();
 
   const resolution = player.currentState?.resolution ?? null;
 
@@ -42,6 +45,22 @@ export function ActivityPlayer({
     if (!player.feedback || resolution !== "correct") return;
     const timeout = setTimeout(() => player.advance(), CORRECT_AUTO_ADVANCE_MS);
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player.feedback, resolution]);
+
+  // Lê o enunciado sozinho quando um item novo aparece — só com a leitura
+  // automática ligada; o botão "Ouvir" continua funcionando de qualquer jeito.
+  useEffect(() => {
+    if (player.feedback || !player.currentItem) return;
+    speak(player.currentItem.prompt);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player.currentItem?.id, player.feedback]);
+
+  // Lê o feedback assim que ele chega — é o momento em que o aluno mais
+  // precisa entender o que aconteceu sem depender de ler o texto.
+  useEffect(() => {
+    if (!player.feedback) return;
+    speak(feedbackSpeechText(resolution, player.feedback));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player.feedback, resolution]);
 
@@ -104,9 +123,12 @@ export function ActivityPlayer({
         </p>
       </div>
 
-      <p className="text-pretty text-xl font-semibold leading-snug text-ink">
-        {item.prompt}
-      </p>
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-pretty text-xl font-semibold leading-snug text-ink">
+          {item.prompt}
+        </p>
+        <SpeakButton text={item.prompt} label="" className="shrink-0" />
+      </div>
 
       <fieldset disabled={isBusy || showingFeedback} className="contents">
         {item.type === "multiple_choice" && (
@@ -162,6 +184,23 @@ export function ActivityPlayer({
       )}
     </div>
   );
+}
+
+/** O que a leitura em voz alta fala quando o feedback aparece. */
+function feedbackSpeechText(
+  resolution: "correct" | "revealed" | "pending_review" | null,
+  outcome: { explanation?: string; message?: string },
+): string {
+  if (resolution === "correct") {
+    return `Isso mesmo! ${outcome.explanation ?? ""}`;
+  }
+  if (resolution === "revealed") {
+    return `Essa não era a resposta. ${outcome.explanation ?? ""}`;
+  }
+  if (resolution === "pending_review") {
+    return outcome.message ?? "Resposta guardada.";
+  }
+  return "Não foi dessa vez. Tente de novo.";
 }
 
 function FeedbackBanner({

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useSpeak } from "@/components/a11y/use-speak";
 import { cn } from "@/lib/cn";
 import type { ItemAnswer } from "@/core/domain/grading";
 import type { Item } from "@/core/domain/types";
@@ -17,6 +18,7 @@ export function MultipleChoiceItem({
   onSubmit: (answer: ItemAnswer) => void;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
+  const { speak } = useSpeak();
 
   return (
     <div className="flex flex-col gap-3">
@@ -28,7 +30,10 @@ export function MultipleChoiceItem({
             role="radio"
             aria-checked={selected === option.id}
             disabled={disabled}
-            onClick={() => setSelected(option.id)}
+            onClick={() => {
+              setSelected(option.id);
+              speak(option.label);
+            }}
             className={cn(
               "min-h-touch rounded-control border-2 px-5 text-left text-base font-medium transition-colors",
               selected === option.id
