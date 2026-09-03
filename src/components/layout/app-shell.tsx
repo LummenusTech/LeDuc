@@ -75,7 +75,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <BrandMark className="bg-primary-soft text-primary" />
+                <BrandMark />
                 <span className="text-xs font-bold leading-tight tracking-wider text-ink">
                   LEDUC
                   <br />

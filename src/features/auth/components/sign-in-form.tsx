@@ -41,7 +41,7 @@ export function SignInForm() {
   return (
     <div className="relative w-full max-w-md rounded-card bg-surface p-7 shadow-raised sm:p-9">
       <div className="flex justify-center">
-        <BrandMark className="size-14 bg-primary-soft" />
+        <BrandMark className="size-14" />
       </div>
 
       <h1 className="mt-5 text-center text-2xl font-bold leading-tight text-ink sm:text-3xl">
