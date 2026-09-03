@@ -161,3 +161,16 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * Some a barra de rolagem dos carrosséis horizontais (`CardCarousel`), sem
+ * tirar a rolagem em si — nem por toque, nem por teclado, nem por roda do
+ * mouse. É a barra do navegador que fica feia ali, não o gesto de rolar.
+ */
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}

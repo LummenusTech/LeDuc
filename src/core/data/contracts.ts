@@ -45,6 +45,13 @@ export interface AuthRepository {
   getSession(): Promise<Session | null>;
   /** Campos editáveis do perfil — o resto do `User` (papel, id) nunca muda por aqui. */
   updateProfile(patch: Partial<Pick<User, "name" | "avatarUrl">>): Promise<Session>;
+  /**
+   * Pede o link de redefinição de senha.
+   *
+   * Nunca revela se o e-mail existe na base — a tela mostra a mesma
+   * confirmação para os dois casos. Vazar essa informação é enumerar contas.
+   */
+  requestPasswordReset(email: string): Promise<void>;
 }
 
 export type ListTracksParams = {

@@ -37,6 +37,12 @@ export function useSignOut() {
   });
 }
 
+export function useRequestPasswordReset() {
+  return useMutation({
+    mutationFn: (email: string) => dataSource.auth.requestPasswordReset(email),
+  });
+}
+
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
 

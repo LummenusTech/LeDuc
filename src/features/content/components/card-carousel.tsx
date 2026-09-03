@@ -38,7 +38,7 @@ export function CardCarousel({
         )}
       </div>
 
-      <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="scrollbar-hidden -mx-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <ul className="grid auto-cols-[minmax(14rem,1fr)] grid-flow-col gap-4">
           {children}
         </ul>

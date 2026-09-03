@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
@@ -119,6 +120,13 @@ export function SignInForm() {
           </span>
           Salvar a minha senha
         </button>
+
+        <Link
+          href={ROUTES.auth.recoverPassword}
+          className="self-start text-sm font-semibold text-primary hover:underline"
+        >
+          Esqueceu sua senha?
+        </Link>
 
         {signIn.error && (
           <p role="alert" className="text-sm font-medium text-danger">

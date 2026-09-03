@@ -202,6 +202,12 @@ const authRepository: AuthRepository = {
     writeStoredSession(updated);
     return delay(updated, 300);
   },
+
+  // Sem servidor de e-mail no protótipo — a latência sozinha já sustenta a
+  // tela de "verifique seu e-mail" que vem a seguir.
+  async requestPasswordReset() {
+    await delay(null, 500);
+  },
 };
 
 function normalize(value: string): string {
