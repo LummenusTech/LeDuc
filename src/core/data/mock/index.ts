@@ -16,8 +16,27 @@ import {
   toAttempts,
   type ActivitySession,
 } from "@/core/domain/activity-session";
+import {
+  evaluateAchievements,
+  type AchievementContext,
+} from "@/core/domain/achievements";
+import { computeMasteryScore, reconcileMasteryScore } from "@/core/domain/mastery";
 import { filterPublished } from "@/core/domain/permissions";
 import { ValidationError } from "@/core/domain/errors";
+import { toDayKey } from "@/core/domain/streak";
+import {
+  computeTrackProgress,
+  findResumeLesson,
+  isLessonComplete,
+  isTrackComplete,
+} from "@/core/domain/unlock-rules";
+import {
+  buildReviewXpEvent,
+  buildTrackCompletionXpEvent,
+  sumXpLedger,
+} from "@/core/domain/xp";
+import { levelProgress } from "@/core/domain/levels";
+import type { LessonProgress } from "@/core/domain/types";
 import {
   enqueue as enqueueSyncItem,
   markSent as markSyncSent,
@@ -25,14 +44,26 @@ import {
   pendingCount as syncPendingCount,
   type SyncItem,
 } from "@/core/domain/sync";
-import type { Paginated, Session, TrackSummary } from "@/core/data/models";
+import { ACHIEVEMENTS_TOTAL } from "@/config/achievements";
+import type { GamificationSummary, Paginated, Session, TrackSummary } from "@/core/data/models";
+import {
+  currentStreak,
+  currentXpTotal,
+  readActivityCompletions,
+  readProgress,
+  readUnlockedAchievements,
+  readXpLedger,
+  recordAccessToday,
+  writeActivityCompletions,
+  writeProgress,
+  writeUnlockedAchievements,
+  writeXpLedger,
+} from "@/core/data/mock/store";
 import {
   CONTINUE_TRACK_ID,
   MOCK_ACTIVITIES,
-  MOCK_GAMIFICATION,
   MOCK_ITEMS,
   MOCK_LESSONS,
-  MOCK_LESSON_PROGRESS,
   MOCK_MODULES,
   MOCK_MODULE_PERFORMANCE,
   MOCK_TRACKS,
@@ -43,6 +74,45 @@ import {
 
 function publishedTrackIds(): Set<string> {
   return new Set(filterPublished(MOCK_TRACKS).map((track) => track.id));
+}
+
+/**
+ * Sobrepõe progresso ao vivo numa `TrackSummary` estática.
+ *
+ * Só a trilha "alfabetização I" tem lições modeladas nesta fase — para as
+ * outras, `MOCK_LESSONS` não tem nada e a sobreposição é um no-op.
+ */
+function liveTrackSummary(seed: TrackSummary): TrackSummary {
+  const lessons = MOCK_LESSONS.filter((lesson) => lesson.trackId === seed.id);
+  if (lessons.length === 0) return seed;
+
+  const progress = readProgress();
+  const ordered = [...lessons].sort((a, b) => a.orderIndex - b.orderIndex);
+  const resume = findResumeLesson(ordered, progress);
+
+  return {
+    ...seed,
+    currentLesson: resume ? resume.orderIndex + 1 : ordered.length,
+    progressPct: computeTrackProgress(ordered, progress),
+  };
+}
+
+function buildGamificationSummary(): GamificationSummary {
+  const xpTotal = currentXpTotal();
+  const { level, xpIntoLevel, xpForNextLevel } = levelProgress(xpTotal);
+  const streak = currentStreak();
+  const unlocked = readUnlockedAchievements();
+
+  return {
+    xpTotal,
+    level,
+    xpIntoLevel,
+    xpForNextLevel,
+    streakDays: streak.current,
+    longestStreakDays: streak.longest,
+    achievementsUnlocked: unlocked.length,
+    achievementsTotal: ACHIEVEMENTS_TOTAL,
+  };
 }
 
 /**
@@ -134,7 +204,7 @@ const contentRepository: ContentRepository = {
     const publishedIds = publishedTrackIds();
     let results = MOCK_TRACK_SUMMARIES.filter((track) =>
       publishedIds.has(track.id),
-    );
+    ).map(liveTrackSummary);
 
     if (params.query?.trim()) {
       results = results.filter((track) => matchesQuery(track, params.query!));
@@ -171,6 +241,13 @@ const contentRepository: ContentRepository = {
     );
   },
 
+  async getLesson(lessonId: string) {
+    const [lesson] = filterPublished(
+      MOCK_LESSONS.filter((item) => item.id === lessonId),
+    );
+    return delay(lesson ?? null);
+  },
+
   async listActivities(lessonId: string) {
     const lesson = MOCK_LESSONS.find((item) => item.id === lessonId);
     if (!lesson || filterPublished([lesson]).length === 0) return delay([]);
@@ -197,29 +274,42 @@ const progressRepository: ProgressRepository = {
       (track) => track.lastAccessedAt !== null && publishedIds.has(track.id),
     )
       .sort((a, b) => (a.lastAccessedAt! < b.lastAccessedAt! ? 1 : -1))
-      .slice(0, limit);
+      .slice(0, limit)
+      .map(liveTrackSummary);
 
     return delay(recent);
   },
 
   async getContinueTrack() {
     const publishedIds = publishedTrackIds();
-    return delay(
-      MOCK_TRACK_SUMMARIES.find(
-        (track) => track.id === CONTINUE_TRACK_ID && publishedIds.has(track.id),
-      ) ?? null,
+    const track = MOCK_TRACK_SUMMARIES.find(
+      (item) => item.id === CONTINUE_TRACK_ID && publishedIds.has(item.id),
     );
+    return delay(track ? liveTrackSummary(track) : null);
   },
 
   async getTrackProgress(trackId: string) {
-    if (trackId !== CONTINUE_TRACK_ID) return delay({});
-    return delay({ ...MOCK_LESSON_PROGRESS });
+    const lessonIds = new Set(
+      MOCK_LESSONS.filter((lesson) => lesson.trackId === trackId).map(
+        (lesson) => lesson.id,
+      ),
+    );
+    const progress = readProgress();
+    const filtered = Object.fromEntries(
+      Object.entries(progress).filter(([lessonId]) => lessonIds.has(lessonId)),
+    );
+    return delay(filtered);
   },
 };
 
 const gamificationRepository: GamificationRepository = {
   async getSummary() {
-    return delay({ ...MOCK_GAMIFICATION });
+    return delay(buildGamificationSummary());
+  },
+
+  async recordAccess() {
+    recordAccessToday();
+    await delay(null, 40);
   },
 };
 
@@ -294,6 +384,136 @@ const activityRepository: ActivityRepository = {
     });
 
     return delay(attempts, 60);
+  },
+
+  async getCompletedActivityIds(lessonId: string) {
+    const completions = readActivityCompletions();
+    return delay(completions[lessonId] ?? [], 40);
+  },
+
+  async applyCompletionEffects({ session, summary, lessonId, trackId }) {
+    const now = new Date().toISOString();
+
+    // Atividades concluídas da lição (RN-P5).
+    const completions = readActivityCompletions();
+    const lessonActivityIds = new Set(completions[lessonId] ?? []);
+    lessonActivityIds.add(session.activityId);
+    completions[lessonId] = [...lessonActivityIds];
+    writeActivityCompletions(completions);
+
+    const lessonActivities = MOCK_ACTIVITIES.filter(
+      (activity) => activity.lessonId === lessonId,
+    );
+    const lessonJustFinished = isLessonComplete(
+      lessonActivities,
+      lessonActivityIds,
+    );
+
+    // Domínio: primeira tentativa de toda a lição, não só desta atividade
+    // (RN-D1) — junta as sessões de todas as atividades da lição.
+    const sessions = readSessions();
+    const lessonAttempts = lessonActivities.flatMap((activity) => {
+      const stored = sessions[activity.id];
+      return stored ? toAttempts(stored) : [];
+    });
+    const incomingMastery = computeMasteryScore(lessonAttempts);
+
+    const progress = readProgress();
+    const storedProgress = progress[lessonId] ?? null;
+    const lessonAlreadyCompleted = storedProgress?.status === "completed";
+
+    const lessonProgress: LessonProgress = {
+      lessonId,
+      status:
+        lessonAlreadyCompleted || lessonJustFinished
+          ? "completed"
+          : "in_progress",
+      // Revisita nunca sobrescreve o domínio já registrado (RN-D2).
+      masteryScore: reconcileMasteryScore(
+        lessonAlreadyCompleted ? storedProgress.masteryScore : null,
+        incomingMastery,
+      ),
+      completedAt: lessonAlreadyCompleted
+        ? storedProgress.completedAt
+        : lessonJustFinished
+          ? now
+          : null,
+    };
+    progress[lessonId] = lessonProgress;
+    writeProgress(progress);
+
+    // Trilha concluída (RN-P6) — só conta como "agora" na primeira vez que a
+    // lição fecha; revisitar uma lição já concluída nunca dispara de novo.
+    const trackLessons = MOCK_LESSONS.filter(
+      (lesson) => lesson.trackId === trackId,
+    );
+    const trackJustFinished =
+      !lessonAlreadyCompleted &&
+      lessonJustFinished &&
+      isTrackComplete(trackLessons, progress);
+
+    // XP (RN-X1 a RN-X5, RN-X7) — o ledger é a única fonte de idempotência,
+    // reprocessar o mesmo evento nunca duplica.
+    const ledger = readXpLedger();
+    ledger.push(
+      session.isReview
+        ? buildReviewXpEvent(session.activityId, toDayKey(new Date()))
+        : {
+            reason: "activity_completed",
+            refId: session.activityId,
+            amount: summary.xpEarned,
+          },
+    );
+    if (trackJustFinished) {
+      ledger.push(buildTrackCompletionXpEvent(trackId));
+    }
+    writeXpLedger(ledger);
+
+    // Conquistas (RN-X9) — idempotente: reavaliar não retira nem duplica.
+    const alreadyUnlocked = readUnlockedAchievements();
+    const lessonsCompleted = Object.values(progress).filter(
+      (item) => item.status === "completed",
+    ).length;
+    const perfectLessons = Object.values(progress).filter(
+      (item) => item.status === "completed" && item.masteryScore === 100,
+    ).length;
+    const tracksCompleted = MOCK_TRACKS.filter((track) => {
+      const lessons = MOCK_LESSONS.filter((l) => l.trackId === track.id);
+      return isTrackComplete(lessons, progress);
+    }).length;
+    const streak = currentStreak();
+
+    const context: AchievementContext = {
+      lessonsCompleted,
+      tracksCompleted,
+      modulesCompleted: 0,
+      xpTotal: sumXpLedger(ledger),
+      currentStreakDays: streak.current,
+      longestStreakDays: streak.longest,
+      perfectLessons,
+      reviewsCompleted: session.isReview ? 1 : 0,
+    };
+
+    const newAchievements = evaluateAchievements(context, alreadyUnlocked, {
+      now,
+    });
+    if (newAchievements.length > 0) {
+      writeUnlockedAchievements([
+        ...alreadyUnlocked,
+        ...newAchievements.map((achievement) => achievement.code),
+      ]);
+    }
+
+    return delay(
+      {
+        lessonProgress,
+        lessonCompletedNow: lessonJustFinished && !lessonAlreadyCompleted,
+        trackCompletedNow: trackJustFinished,
+        gamification: buildGamificationSummary(),
+        newAchievements,
+      },
+      150,
+    );
   },
 };
 

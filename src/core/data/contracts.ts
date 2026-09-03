@@ -10,6 +10,7 @@ import type {
   ActivitySession,
   ActivitySummary,
 } from "@/core/domain/activity-session";
+import type { UnlockedAchievement } from "@/core/domain/achievements";
 import type { GradeOutcome } from "@/core/domain/grading";
 import type { SyncItem } from "@/core/domain/sync";
 import type {
@@ -55,6 +56,8 @@ export interface ContentRepository {
   listTracks(params?: ListTracksParams): Promise<Paginated<TrackSummary>>;
   getTrack(trackId: string): Promise<Track | null>;
   listLessons(trackId: string): Promise<Lesson[]>;
+  /** A rota da lição não carrega o id da trilha — é assim que ela se resolve sozinha. */
+  getLesson(lessonId: string): Promise<Lesson | null>;
   listActivities(lessonId: string): Promise<Activity[]>;
   listItems(activityId: string): Promise<Item[]>;
 }
@@ -70,6 +73,8 @@ export interface ProgressRepository {
 
 export interface GamificationRepository {
   getSummary(): Promise<GamificationSummary>;
+  /** Registra o acesso de hoje (RN-O1). Idempotente — chamar várias vezes no mesmo dia não altera a ofensiva. */
+  recordAccess(): Promise<void>;
 }
 
 export interface MetricsRepository {
@@ -88,7 +93,29 @@ export interface ActivityRepository {
   saveSession(session: ActivitySession): Promise<void>;
   completeActivity(session: ActivitySession): Promise<ActivitySummary>;
   listAttempts(lessonId: string): Promise<Attempt[]>;
+  /** Ids das atividades já concluídas na lição — insumo de RN-P5 pra tela. */
+  getCompletedActivityIds(lessonId: string): Promise<string[]>;
+  /**
+   * Aplica os efeitos colaterais de fechar uma atividade: credita XP, marca a
+   * lição concluída quando é a última atividade dela (RN-P5), soma domínio,
+   * verifica trilha concluída (RN-P6) e conquistas novas. Chamado uma vez, de
+   * forma explícita, depois de `completeActivity` — que continua puro.
+   */
+  applyCompletionEffects(input: {
+    session: ActivitySession;
+    summary: ActivitySummary;
+    lessonId: string;
+    trackId: string;
+  }): Promise<CompletionEffects>;
 }
+
+export type CompletionEffects = {
+  lessonProgress: LessonProgress;
+  lessonCompletedNow: boolean;
+  trackCompletedNow: boolean;
+  gamification: GamificationSummary;
+  newAchievements: UnlockedAchievement[];
+};
 
 /**
  * Os quatro usos de IA do produto, atrás de uma porta só.

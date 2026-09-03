@@ -307,6 +307,121 @@ export const MOCK_ITEMS: Item[] = [
       referenceAnswers: ["água", "arroz", "abelha", "avião", "amigo"],
     },
   },
+
+  /* -------------------------------------------------------------------------- */
+  /* Lição 1 · Atividade 2 (Praticar) — reforço das vogais                      */
+  /* -------------------------------------------------------------------------- */
+  {
+    id: "alf1-l1-a2-i1",
+    activityId: "alf1-l1-a2",
+    type: "multiple_choice",
+    difficulty: "easy",
+    prompt: "Qual destas palavras começa com a vogal E?",
+    explanation: "ESCADA começa com o som da vogal E.",
+    ignoreAccents: true,
+    content: {
+      options: [
+        { id: "o1", label: "Escada" },
+        { id: "o2", label: "Bola" },
+        { id: "o3", label: "Faca" },
+        { id: "o4", label: "Rio" },
+      ],
+      correctOptionId: "o1",
+    },
+  },
+  {
+    id: "alf1-l1-a2-i2",
+    activityId: "alf1-l1-a2",
+    type: "fill_blanks",
+    difficulty: "medium",
+    prompt: "Complete a palavra com a vogal que falta.",
+    explanation: "A palavra é BOLA. A vogal que falta é o O.",
+    ignoreAccents: true,
+    content: {
+      segments: ["b", null, "la"],
+      acceptedAnswers: [["o"]],
+    },
+  },
+
+  /* -------------------------------------------------------------------------- */
+  /* Lição 4 · Atividade 1 (Reconhecer) — palavras do rio                       */
+  /* -------------------------------------------------------------------------- */
+  {
+    id: "alf1-l4-a1-i1",
+    activityId: "alf1-l4-a1",
+    type: "multiple_choice",
+    difficulty: "easy",
+    prompt: "Qual destas palavras tem a ver com o rio?",
+    explanation:
+      "CANOA é uma embarcação usada para se deslocar pelo rio.",
+    ignoreAccents: true,
+    content: {
+      options: [
+        { id: "o1", label: "Canoa" },
+        { id: "o2", label: "Cadeira" },
+        { id: "o3", label: "Relógio" },
+        { id: "o4", label: "Sapato" },
+      ],
+      correctOptionId: "o1",
+    },
+  },
+  {
+    id: "alf1-l4-a1-i2",
+    activityId: "alf1-l4-a1",
+    type: "column_match",
+    difficulty: "medium",
+    prompt: "Ligue cada palavra ao que ela serve para fazer.",
+    explanation:
+      "A rede pega peixe, o remo move o barco, e o peixe nada na água.",
+    ignoreAccents: true,
+    content: {
+      left: [
+        { id: "l-peixe", label: "Peixe" },
+        { id: "l-rede", label: "Rede" },
+        { id: "l-remo", label: "Remo" },
+      ],
+      right: [
+        { id: "r-nada", label: "Nada na água" },
+        { id: "r-pesca", label: "Pega o peixe" },
+        { id: "r-move", label: "Move o barco" },
+      ],
+      correctPairs: [
+        { leftId: "l-peixe", rightId: "r-nada" },
+        { leftId: "l-rede", rightId: "r-pesca" },
+        { leftId: "l-remo", rightId: "r-move" },
+      ],
+    },
+  },
+
+  /* -------------------------------------------------------------------------- */
+  /* Lição 4 · Atividade 2 (Escrever) — palavras do rio                         */
+  /* -------------------------------------------------------------------------- */
+  {
+    id: "alf1-l4-a2-i1",
+    activityId: "alf1-l4-a2",
+    type: "fill_blanks",
+    difficulty: "medium",
+    prompt: "Complete a palavra com a letra que falta.",
+    explanation: "A palavra é PEIXE. A letra que falta é o X.",
+    ignoreAccents: true,
+    content: {
+      segments: ["pei", null, "e"],
+      acceptedAnswers: [["x"]],
+    },
+  },
+  {
+    id: "alf1-l4-a2-i2",
+    activityId: "alf1-l4-a2",
+    type: "short_answer",
+    difficulty: "hard",
+    prompt: "Escreva o nome de algo que se usa para pescar.",
+    explanation:
+      "Rede, anzol, vara, linha e tarrafa são exemplos de equipamento de pesca.",
+    ignoreAccents: true,
+    content: {
+      referenceAnswers: ["rede", "anzol", "vara", "linha", "tarrafa"],
+    },
+  },
 ];
 
 /* -------------------------------------------------------------------------- */

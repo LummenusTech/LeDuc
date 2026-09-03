@@ -35,3 +35,27 @@ export function useLessons(trackId: string) {
     enabled: Boolean(trackId),
   });
 }
+
+export function useLesson(lessonId: string) {
+  return useQuery({
+    queryKey: queryKeys.lessons.detail(lessonId),
+    queryFn: () => dataSource.content.getLesson(lessonId),
+    enabled: Boolean(lessonId),
+  });
+}
+
+export function useActivities(lessonId: string) {
+  return useQuery({
+    queryKey: queryKeys.activities.byLesson(lessonId),
+    queryFn: () => dataSource.content.listActivities(lessonId),
+    enabled: Boolean(lessonId),
+  });
+}
+
+export function useItems(activityId: string) {
+  return useQuery({
+    queryKey: queryKeys.items.byActivity(activityId),
+    queryFn: () => dataSource.content.listItems(activityId),
+    enabled: Boolean(activityId),
+  });
+}
