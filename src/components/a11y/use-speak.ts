@@ -1,8 +1,21 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 
 import { useA11yPrefs } from "@/components/a11y/a11y-provider";
+
+/** Suporte do navegador não muda em runtime — inscrição vazia basta. */
+function subscribeToNothing() {
+  return () => {};
+}
+
+function getBrowserSupport() {
+  return "speechSynthesis" in window;
+}
+
+function getServerSupport() {
+  return false;
+}
 
 /**
  * Ponte para a leitura em voz alta (Web Speech API).
@@ -16,11 +29,18 @@ import { useA11yPrefs } from "@/components/a11y/a11y-provider";
  * desligado). `speak(text, { force: true })` fala mesmo assim — para o botão
  * manual "Ouvir", que precisa funcionar mesmo com a leitura automática
  * desligada.
+ *
+ * `supported` começa `false` e só muda depois de montar: o suporte do
+ * navegador não existe no servidor, então decidir isso já no primeiro render
+ * faria o HTML do servidor e do cliente divergir (erro de hidratação).
  */
 export function useSpeak() {
   const { sound } = useA11yPrefs();
-  const supported =
-    typeof window !== "undefined" && "speechSynthesis" in window;
+  const supported = useSyncExternalStore(
+    subscribeToNothing,
+    getBrowserSupport,
+    getServerSupport,
+  );
 
   const stop = useCallback(() => {
     if (!supported) return;
