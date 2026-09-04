@@ -8,6 +8,7 @@ import { useState, type FormEvent } from "react";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/config/routes";
+import { dataSource } from "@/core/data/provider";
 import { toUserMessage } from "@/core/domain/errors";
 import { useSignIn } from "@/features/auth/hooks";
 import { cn } from "@/lib/cn";
@@ -32,7 +33,8 @@ export function SignInForm() {
     event.preventDefault();
     try {
       await signIn.mutateAsync({ email, password, rememberMe });
-      router.push(ROUTES.student.home);
+      const seenOnboarding = await dataSource.auth.hasSeenOnboarding();
+      router.push(seenOnboarding ? ROUTES.student.home : ROUTES.onboarding);
     } catch {
       // O erro é exibido abaixo, a partir de `signIn.error`.
     }

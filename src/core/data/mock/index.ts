@@ -51,6 +51,8 @@ import type { GamificationSummary, Paginated, Session, TrackSummary } from "@/co
 import {
   currentStreak,
   currentXpTotal,
+  hasSeenOnboarding,
+  markOnboardingSeen,
   readActivityCompletions,
   readProgress,
   readStreakDays,
@@ -207,6 +209,15 @@ const authRepository: AuthRepository = {
   // tela de "verifique seu e-mail" que vem a seguir.
   async requestPasswordReset() {
     await delay(null, 500);
+  },
+
+  async hasSeenOnboarding() {
+    return delay(hasSeenOnboarding(), 60);
+  },
+
+  async markOnboardingSeen() {
+    markOnboardingSeen();
+    await delay(null, 60);
   },
 };
 

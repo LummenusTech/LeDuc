@@ -52,6 +52,9 @@ export interface AuthRepository {
    * confirmação para os dois casos. Vazar essa informação é enumerar contas.
    */
   requestPasswordReset(email: string): Promise<void>;
+  /** Já viu a introdução do LeDuc? Decide entrar direto ou pelo onboarding. */
+  hasSeenOnboarding(): Promise<boolean>;
+  markOnboardingSeen(): Promise<void>;
 }
 
 export type ListTracksParams = {

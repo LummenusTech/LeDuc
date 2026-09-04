@@ -206,3 +206,17 @@ export function readUnlockedAchievements(): string[] {
 export function writeUnlockedAchievements(codes: string[]) {
   writeJson(ACHIEVEMENTS_KEY, codes);
 }
+
+/* -------------------------------------------------------------------------- */
+/* Onboarding — visto uma vez, no primeiro acesso                             */
+/* -------------------------------------------------------------------------- */
+
+const ONBOARDING_KEY = "leduc.onboarding-seen";
+
+export function hasSeenOnboarding(): boolean {
+  return readJson(ONBOARDING_KEY, () => false);
+}
+
+export function markOnboardingSeen(): void {
+  writeJson(ONBOARDING_KEY, true);
+}
