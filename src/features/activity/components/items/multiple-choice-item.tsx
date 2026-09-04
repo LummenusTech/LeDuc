@@ -1,5 +1,6 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ export function MultipleChoiceItem({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-2.5" role="radiogroup">
-        {item.content.options.map((option) => (
+        {item.content.options.map((option, index) => (
           <button
             key={option.id}
             type="button"
@@ -35,13 +36,24 @@ export function MultipleChoiceItem({
               speak(option.label);
             }}
             className={cn(
-              "min-h-touch rounded-control border-2 px-5 text-left text-base font-medium transition-colors",
+              "flex min-h-16 items-center gap-4 rounded-control border-2 px-4 text-left text-base font-medium shadow-sm transition-[border-color,background-color,box-shadow,transform] active:translate-y-px",
               selected === option.id
                 ? "border-primary bg-primary-soft text-primary"
-                : "border-line bg-surface text-ink hover:border-primary/50",
+                : "border-line bg-surface text-ink hover:border-tint-violeta-cover hover:shadow-card",
             )}
           >
-            {option.label}
+            <span
+              className={cn(
+                "grid size-9 shrink-0 place-items-center rounded-full border-2 text-sm font-bold",
+                selected === option.id
+                  ? "border-primary bg-primary text-ink-inverse"
+                  : "border-line bg-surface-muted text-ink-muted",
+              )}
+              aria-hidden
+            >
+              {selected === option.id ? <Check className="size-5" /> : String.fromCharCode(65 + index)}
+            </span>
+            <span className="flex-1">{option.label}</span>
           </button>
         ))}
       </div>
@@ -49,7 +61,7 @@ export function MultipleChoiceItem({
       <Button
         disabled={!selected}
         isLoading={disabled}
-        className="self-end"
+        className="w-full sm:self-end sm:w-auto"
         onClick={() =>
           selected && onSubmit({ type: "multiple_choice", optionId: selected })
         }

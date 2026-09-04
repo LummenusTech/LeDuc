@@ -6,7 +6,7 @@ import { Check, ChevronLeft, Lightbulb, RotateCcw, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/feedback/states";
-import { Chip, ProgressBar, Skeleton } from "@/components/ui/primitives";
+import { Card, Chip, ProgressBar, Skeleton } from "@/components/ui/primitives";
 import { SpeakButton } from "@/components/a11y/speak-button";
 import { useSpeak } from "@/components/a11y/use-speak";
 import { MAX_ATTEMPTS_PER_ITEM } from "@/config/activity-rules";
@@ -93,8 +93,8 @@ export function ActivityPlayer({
   const attemptsUsed = player.currentState?.attempts ?? 0;
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-6">
-      <div className="flex items-center gap-3">
+    <div className="mx-auto flex max-w-2xl flex-col gap-5">
+      <div className="flex items-center gap-4">
         <Link
           href={ROUTES.student.lesson(lessonId)}
           aria-label="Voltar para a lição"
@@ -103,9 +103,14 @@ export function ActivityPlayer({
           <ChevronLeft className="size-5" aria-hidden />
         </Link>
         <div className="flex-1">
-          <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
+          <div className="flex items-center justify-between gap-3">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-primary">
             {activityTitle}
           </p>
+          <p className="text-sm font-semibold tabular-nums text-ink">
+            Questão {player.displayIndex + 1} de {player.totalItems}
+          </p>
+          </div>
           <ProgressBar
             value={((player.displayIndex + (showingFeedback ? 1 : 0)) /
               player.totalItems) *
@@ -116,19 +121,22 @@ export function ActivityPlayer({
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <Chip>{DIFFICULTY_LABELS[item.difficulty]}</Chip>
-        <p className="text-xs text-ink-muted">
-          Item {player.displayIndex + 1} de {player.totalItems}
-        </p>
-      </div>
+      <Card variant="featured" className="p-5 sm:p-7">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <Chip>{DIFFICULTY_LABELS[item.difficulty]}</Chip>
+          <p className="text-sm font-medium text-ink-muted">
+            {attemptsUsed === 0
+              ? `Você tem ${MAX_ATTEMPTS_PER_ITEM} tentativas`
+              : `${MAX_ATTEMPTS_PER_ITEM - attemptsUsed} tentativas restantes`}
+          </p>
+        </div>
 
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-pretty text-xl font-semibold leading-snug text-ink">
-          {item.prompt}
-        </p>
-        <SpeakButton text={item.prompt} label="" className="shrink-0" />
-      </div>
+        <div className="mb-6 flex items-start justify-between gap-4 border-b border-line pb-5">
+          <p className="text-pretty text-xl font-bold leading-relaxed text-ink sm:text-2xl">
+            {item.prompt}
+          </p>
+          <SpeakButton text={item.prompt} label="" className="shrink-0" />
+        </div>
 
       <fieldset disabled={isBusy || showingFeedback} className="contents">
         {item.type === "multiple_choice" && (
@@ -165,6 +173,7 @@ export function ActivityPlayer({
           />
         )}
       </fieldset>
+      </Card>
 
       {player.feedback && (
         <FeedbackBanner
@@ -234,7 +243,7 @@ function FeedbackBanner({
 
   if (resolution === "pending_review") {
     return (
-      <div className="flex items-start gap-3 rounded-card bg-surface-muted px-4 py-3.5">
+      <div className="flex flex-col items-stretch gap-3 rounded-card border border-line bg-surface-muted px-4 py-4 sm:flex-row sm:items-start">
         <Lightbulb className="mt-0.5 size-5 shrink-0 text-ink-muted" aria-hidden />
         <div className="flex-1">
           <p className="font-semibold text-ink">Resposta guardada</p>
@@ -249,7 +258,7 @@ function FeedbackBanner({
 
   if (resolution === "revealed") {
     return (
-      <div className="flex items-start gap-3 rounded-card bg-danger-soft px-4 py-3.5 text-danger">
+      <div className="flex flex-col items-stretch gap-3 rounded-card border border-danger/15 bg-danger-soft px-4 py-4 text-danger sm:flex-row sm:items-start">
         <X className="mt-0.5 size-5 shrink-0" aria-hidden />
         <div className="flex-1">
           <p className="font-semibold">Essa não era a resposta</p>
@@ -269,7 +278,7 @@ function FeedbackBanner({
   return (
     <div
       className={cn(
-        "flex items-start gap-3 rounded-card bg-danger-soft px-4 py-3.5 text-danger",
+        "flex flex-col items-stretch gap-3 rounded-card border border-danger/15 bg-danger-soft px-4 py-4 text-danger sm:flex-row sm:items-start",
       )}
     >
       <RotateCcw className="mt-0.5 size-5 shrink-0" aria-hidden />

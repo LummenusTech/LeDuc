@@ -69,7 +69,7 @@ export function SignInForm() {
               placeholder="E-mail"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted"
+              className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted focus-visible:outline-none"
             />
           </div>
         </FormField>
@@ -86,7 +86,7 @@ export function SignInForm() {
               placeholder="Senha"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted"
+              className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted focus-visible:outline-none"
             />
             <button
               type="button"

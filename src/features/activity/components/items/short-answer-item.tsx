@@ -49,7 +49,7 @@ export function ShortAnswerItem({
       <Button
         disabled={text.trim().length === 0}
         isLoading={disabled}
-        className="self-end"
+        className="w-full sm:self-end sm:w-auto"
         onClick={() => onSubmit({ type: "short_answer", text })}
       >
         Responder

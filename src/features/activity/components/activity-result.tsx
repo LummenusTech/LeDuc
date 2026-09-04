@@ -66,7 +66,7 @@ export function ActivityResult({
   const newAchievement = effects.newAchievements[0];
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-6">
+    <div className="mx-auto flex max-w-2xl flex-col gap-6">
       {effects.trackCompletedNow ? (
         <HeroCard
           icon={Trophy}
@@ -90,7 +90,7 @@ export function ActivityResult({
         />
       )}
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
         <Stat label="XP ganho" value={`+${summary.xpEarned}`} />
         <Stat
           label="Desempenho"
@@ -149,11 +149,13 @@ function HeroCard({
 }) {
   return (
     <Card
+      variant="featured"
       className={cn(
-        "flex flex-col items-center px-6 py-10 text-center",
+        "relative overflow-hidden px-6 py-10 text-center",
         tone === "celebrate" && "bg-primary-soft",
       )}
     >
+      <span className="absolute -right-12 -top-12 size-40 rounded-full border-[24px] border-surface/40" aria-hidden />
       <span
         className={cn(
           "mb-4 grid size-16 place-items-center rounded-full",
@@ -165,8 +167,8 @@ function HeroCard({
       >
         <Icon className="size-8" />
       </span>
-      <h1 className="text-2xl font-bold text-ink">{title}</h1>
-      <p className="mt-1 text-ink-muted">{description}</p>
+      <h1 className="relative text-2xl font-bold text-ink sm:text-3xl">{title}</h1>
+      <p className="relative mx-auto mt-2 max-w-md leading-relaxed text-ink-muted">{description}</p>
     </Card>
   );
 }
@@ -181,7 +183,7 @@ function Stat({
   icon?: LucideIcon;
 }) {
   return (
-    <Card className="flex flex-col gap-1 px-4 py-3.5">
+    <Card variant="metric" className="flex flex-col gap-1 px-5 py-4">
       <div className="flex items-center gap-1.5 text-xs text-ink-muted">
         {Icon && <Icon className="size-3.5" aria-hidden />}
         {label}

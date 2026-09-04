@@ -62,7 +62,7 @@ export function FillBlanksItem({
       <Button
         disabled={!allFilled}
         isLoading={disabled}
-        className="self-end"
+        className="w-full sm:self-end sm:w-auto"
         onClick={() => onSubmit({ type: "fill_blanks", values })}
       >
         Responder

@@ -64,7 +64,7 @@ export function ColumnMatchItem({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2.5">
           {item.content.left.map((choice) => (
             <button
@@ -117,7 +117,7 @@ export function ColumnMatchItem({
       <Button
         disabled={!complete}
         isLoading={disabled}
-        className="self-end"
+        className="w-full sm:self-end sm:w-auto"
         onClick={() => onSubmit({ type: "column_match", pairs })}
       >
         Responder
