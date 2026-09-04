@@ -13,6 +13,7 @@ import type {
   Track,
   User,
 } from "@/core/domain/types";
+import { ACHIEVEMENTS_TOTAL } from "@/config/achievements";
 
 /**
  * Dados de demonstração.
@@ -232,7 +233,7 @@ export const MOCK_ACTIVITIES: Activity[] = MOCK_LESSONS.flatMap(
  * Itens da primeira atividade da primeira lição, cobrindo os quatro tipos e as
  * três dificuldades. Serve de base para o motor de atividades da fase 6.
  */
-export const MOCK_ITEMS: Item[] = [
+const CURATED_ITEMS: Item[] = [
   {
     id: "alf1-l1-a1-i1",
     activityId: "alf1-l1-a1",
@@ -306,7 +307,221 @@ export const MOCK_ITEMS: Item[] = [
       referenceAnswers: ["água", "arroz", "abelha", "avião", "amigo"],
     },
   },
+
+  /* -------------------------------------------------------------------------- */
+  /* Lição 1 · Atividade 2 (Praticar) — reforço das vogais                      */
+  /* -------------------------------------------------------------------------- */
+  {
+    id: "alf1-l1-a2-i1",
+    activityId: "alf1-l1-a2",
+    type: "multiple_choice",
+    difficulty: "easy",
+    prompt: "Qual destas palavras começa com a vogal E?",
+    explanation: "ESCADA começa com o som da vogal E.",
+    ignoreAccents: true,
+    content: {
+      options: [
+        { id: "o1", label: "Escada" },
+        { id: "o2", label: "Bola" },
+        { id: "o3", label: "Faca" },
+        { id: "o4", label: "Rio" },
+      ],
+      correctOptionId: "o1",
+    },
+  },
+  {
+    id: "alf1-l1-a2-i2",
+    activityId: "alf1-l1-a2",
+    type: "fill_blanks",
+    difficulty: "medium",
+    prompt: "Complete a palavra com a vogal que falta.",
+    explanation: "A palavra é BOLA. A vogal que falta é o O.",
+    ignoreAccents: true,
+    content: {
+      segments: ["b", null, "la"],
+      acceptedAnswers: [["o"]],
+    },
+  },
+
+  /* -------------------------------------------------------------------------- */
+  /* Lição 4 · Atividade 1 (Reconhecer) — palavras do rio                       */
+  /* -------------------------------------------------------------------------- */
+  {
+    id: "alf1-l4-a1-i1",
+    activityId: "alf1-l4-a1",
+    type: "multiple_choice",
+    difficulty: "easy",
+    prompt: "Qual destas palavras tem a ver com o rio?",
+    explanation:
+      "CANOA é uma embarcação usada para se deslocar pelo rio.",
+    ignoreAccents: true,
+    content: {
+      options: [
+        { id: "o1", label: "Canoa" },
+        { id: "o2", label: "Cadeira" },
+        { id: "o3", label: "Relógio" },
+        { id: "o4", label: "Sapato" },
+      ],
+      correctOptionId: "o1",
+    },
+  },
+  {
+    id: "alf1-l4-a1-i2",
+    activityId: "alf1-l4-a1",
+    type: "column_match",
+    difficulty: "medium",
+    prompt: "Ligue cada palavra ao que ela serve para fazer.",
+    explanation:
+      "A rede pega peixe, o remo move o barco, e o peixe nada na água.",
+    ignoreAccents: true,
+    content: {
+      left: [
+        { id: "l-peixe", label: "Peixe" },
+        { id: "l-rede", label: "Rede" },
+        { id: "l-remo", label: "Remo" },
+      ],
+      right: [
+        { id: "r-nada", label: "Nada na água" },
+        { id: "r-pesca", label: "Pega o peixe" },
+        { id: "r-move", label: "Move o barco" },
+      ],
+      correctPairs: [
+        { leftId: "l-peixe", rightId: "r-nada" },
+        { leftId: "l-rede", rightId: "r-pesca" },
+        { leftId: "l-remo", rightId: "r-move" },
+      ],
+    },
+  },
+
+  /* -------------------------------------------------------------------------- */
+  /* Lição 4 · Atividade 2 (Escrever) — palavras do rio                         */
+  /* -------------------------------------------------------------------------- */
+  {
+    id: "alf1-l4-a2-i1",
+    activityId: "alf1-l4-a2",
+    type: "fill_blanks",
+    difficulty: "medium",
+    prompt: "Complete a palavra com a letra que falta.",
+    explanation: "A palavra é PEIXE. A letra que falta é o X.",
+    ignoreAccents: true,
+    content: {
+      segments: ["pei", null, "e"],
+      acceptedAnswers: [["x"]],
+    },
+  },
+  {
+    id: "alf1-l4-a2-i2",
+    activityId: "alf1-l4-a2",
+    type: "short_answer",
+    difficulty: "hard",
+    prompt: "Escreva o nome de algo que se usa para pescar.",
+    explanation:
+      "Rede, anzol, vara, linha e tarrafa são exemplos de equipamento de pesca.",
+    ignoreAccents: true,
+    content: {
+      referenceAnswers: ["rede", "anzol", "vara", "linha", "tarrafa"],
+    },
+  },
 ];
+
+const ITEM_TYPES: Item["type"][] = [
+  "multiple_choice",
+  "column_match",
+  "fill_blanks",
+  "short_answer",
+];
+
+function createDemoItem(
+  activityId: string,
+  itemNumber: number,
+  type: Item["type"],
+): Item {
+  const common = {
+    id: `${activityId}-i${itemNumber}`,
+    activityId,
+    difficulty: itemNumber <= 2 ? "easy" : itemNumber <= 4 ? "medium" : "hard",
+    ignoreAccents: true,
+  } as const;
+
+  if (type === "multiple_choice") {
+    return {
+      ...common,
+      type,
+      prompt: "Qual palavra está escrita corretamente?",
+      explanation: "RIO é escrito com as letras R, I e O, nessa ordem.",
+      content: {
+        options: [
+          { id: "rio", label: "Rio" },
+          { id: "rro", label: "Rro" },
+          { id: "iro", label: "Iro" },
+          { id: "rii", label: "Rii" },
+        ],
+        correctOptionId: "rio",
+      },
+    };
+  }
+
+  if (type === "column_match") {
+    return {
+      ...common,
+      type,
+      prompt: "Ligue cada palavra ao começo correto.",
+      explanation: "Cada palavra foi ligada à sua primeira letra.",
+      content: {
+        left: [
+          { id: "canoa", label: "Canoa" },
+          { id: "peixe", label: "Peixe" },
+          { id: "rede", label: "Rede" },
+        ],
+        right: [
+          { id: "c", label: "C" },
+          { id: "p", label: "P" },
+          { id: "r", label: "R" },
+        ],
+        correctPairs: [
+          { leftId: "canoa", rightId: "c" },
+          { leftId: "peixe", rightId: "p" },
+          { leftId: "rede", rightId: "r" },
+        ],
+      },
+    };
+  }
+
+  if (type === "fill_blanks") {
+    return {
+      ...common,
+      type,
+      prompt: "Complete a palavra com a letra que falta.",
+      explanation: "A palavra é RIO. A letra que falta é I.",
+      content: { segments: ["r", null, "o"], acceptedAnswers: [["i"]] },
+    };
+  }
+
+  return {
+    ...common,
+    type: "short_answer",
+    prompt: "Escreva uma palavra que você usa no dia a dia.",
+    explanation: "Vale uma palavra conhecida e escrita com atenção.",
+    content: { referenceAnswers: ["casa", "rio", "barco", "água", "rede"] },
+  };
+}
+
+export const MOCK_ITEMS: Item[] = MOCK_ACTIVITIES.flatMap((activity) => {
+  const curated = CURATED_ITEMS.filter((item) => item.activityId === activity.id);
+  const missingTypes = ITEM_TYPES.filter(
+    (type) => !curated.some((item) => item.type === type),
+  );
+  const generated: Item[] = [];
+
+  while (curated.length + generated.length < 6) {
+    const type =
+      missingTypes.shift() ?? ITEM_TYPES[(curated.length + generated.length) % ITEM_TYPES.length];
+    const itemNumber = curated.length + generated.length + 1;
+    generated.push(createDemoItem(activity.id, itemNumber, type));
+  }
+
+  return [...curated, ...generated];
+});
 
 /* -------------------------------------------------------------------------- */
 /* Progresso do aluno                                                          */
@@ -358,7 +573,7 @@ export const MOCK_GAMIFICATION: GamificationSummary = {
   streakDays: 5,
   longestStreakDays: 11,
   achievementsUnlocked: 7,
-  achievementsTotal: 24,
+  achievementsTotal: ACHIEVEMENTS_TOTAL,
 };
 
 export const MOCK_MODULE_PERFORMANCE: ModulePerformance[] = [

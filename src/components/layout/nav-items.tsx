@@ -28,10 +28,10 @@ function SidebarLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
       href={item.href}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "flex min-h-12 items-center gap-3 rounded-control px-3 text-sm font-medium transition-colors",
+        "group flex min-h-12 items-center gap-3 rounded-control px-3.5 text-sm font-medium transition-[background-color,color,transform]",
         isActive
           ? "bg-surface font-semibold text-primary"
-          : "text-ink-inverse/85 hover:bg-sidebar-hover hover:text-ink-inverse",
+          : "text-ink-inverse/85 hover:translate-x-0.5 hover:bg-sidebar-hover hover:text-ink-inverse",
       )}
     >
       <Icon className="size-5 shrink-0" aria-hidden />
@@ -46,9 +46,9 @@ export function SideNav() {
   return (
     <nav
       aria-label="Navegação principal"
-      className="hidden w-60 shrink-0 flex-col gap-1 bg-sidebar p-4 lg:flex"
+      className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col gap-1 border-r border-ink-inverse/10 bg-sidebar p-4 lg:flex"
     >
-      <BrandLockup className="mb-6 px-2 pt-2" />
+      <BrandLockup className="mb-7 px-2 pt-3" />
 
       {PRIMARY_NAV.map((item) => (
         <SidebarLink
@@ -95,7 +95,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Navegação principal"
-      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-line bg-surface px-2 pb-[env(safe-area-inset-bottom)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-line bg-surface/95 px-2 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-16px_rgb(76_29_149/0.35)] backdrop-blur-md lg:hidden"
     >
       {PRIMARY_NAV.map((item) => {
         const isActive = isNavItemActive(item, pathname);
@@ -109,8 +109,9 @@ export function BottomNav() {
             className={cn(
               "flex min-h-touch flex-col items-center justify-center gap-1 rounded-control text-xs transition-colors",
               isActive
-                ? "bg-primary-soft font-semibold text-primary"
+                ? "font-semibold text-primary after:absolute after:top-1 after:h-1 after:w-8 after:rounded-pill after:bg-primary"
                 : "text-ink-muted",
+              "relative",
             )}
           >
             <Icon className="size-5" aria-hidden />

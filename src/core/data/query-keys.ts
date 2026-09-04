@@ -20,11 +20,37 @@ export const queryKeys = {
     progress: (trackId: string) => ["tracks", "progress", trackId] as const,
   },
 
+  lessonHistory: ["lesson-history"] as const,
+  notifications: ["notifications"] as const,
+
   lessons: {
     byTrack: (trackId: string) => ["lessons", trackId] as const,
+    detail: (lessonId: string) => ["lessons", "detail", lessonId] as const,
   },
 
+  activities: {
+    byLesson: (lessonId: string) => ["activities", lessonId] as const,
+  },
+
+  items: {
+    byActivity: (activityId: string) => ["items", activityId] as const,
+  },
+
+  activitySession: (activityId: string) =>
+    ["activity-session", activityId] as const,
+
+  attempts: {
+    byLesson: (lessonId: string) => ["attempts", lessonId] as const,
+  },
+
+  completedActivityIds: (lessonId: string) =>
+    ["completed-activity-ids", lessonId] as const,
+
+  activityResult: (activityId: string) =>
+    ["activity-result", activityId] as const,
+
   gamification: ["gamification"] as const,
+  unlockedAchievements: ["unlocked-achievements"] as const,
 
   metrics: {
     stats: ["metrics", "stats"] as const,

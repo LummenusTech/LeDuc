@@ -1,4 +1,9 @@
-import type { Lesson, LessonProgress, LessonStatus } from "@/core/domain/types";
+import type {
+  Activity,
+  Lesson,
+  LessonProgress,
+  LessonStatus,
+} from "@/core/domain/types";
 
 /**
  * Navegação linear: a lição N só abre quando a N-1 é concluída.
@@ -78,4 +83,34 @@ export function computeTrackProgress(
   ).length;
 
   return Math.round((completed / lessons.length) * 100);
+}
+
+/**
+ * Lição concluída quando toda atividade dela está concluída (RN-P5).
+ *
+ * Uma lição sem atividades nunca está concluída — não existe "concluir por
+ * omissão"; é sinal de conteúdo incompleto, não de aluno em dia.
+ */
+export function isLessonComplete(
+  activities: readonly Activity[],
+  completedActivityIds: ReadonlySet<string>,
+): boolean {
+  if (activities.length === 0) return false;
+  return activities.every((activity) => completedActivityIds.has(activity.id));
+}
+
+/**
+ * Trilha concluída quando toda lição dela está concluída (RN-P6).
+ *
+ * Reusa o mesmo critério de `computeTrackProgress` (status `"completed"` em
+ * `LessonProgress`), só que como booleano — é o que a tela de trilha e o
+ * evento de XP de conclusão de trilha (RN-X5) precisam para decidir "cheguei
+ * ao fim", em vez de reler um percentual.
+ */
+export function isTrackComplete(
+  lessons: readonly Lesson[],
+  progress: Readonly<Record<string, LessonProgress>>,
+): boolean {
+  if (lessons.length === 0) return false;
+  return lessons.every((lesson) => progress[lesson.id]?.status === "completed");
 }

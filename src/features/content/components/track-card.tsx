@@ -8,7 +8,7 @@ import type { TrackSummary } from "@/core/data/models";
 import { cn } from "@/lib/cn";
 
 const CARD_CLASSES =
-  "flex h-full flex-col overflow-hidden rounded-card bg-surface shadow-card";
+  "flex h-full flex-col overflow-hidden rounded-card border border-line/80 bg-surface shadow-card";
 
 function CardBody({
   track,
@@ -21,11 +21,15 @@ function CardBody({
 
   return (
     <>
-      <div className={cn("h-24 shrink-0", tint.cover)} aria-hidden />
+      <div className={cn("relative h-28 shrink-0 overflow-hidden", tint.cover)} aria-hidden>
+        <span className="absolute -right-5 -top-10 size-28 rounded-full border-[18px] border-surface/35" />
+        <span className="absolute bottom-3 left-5 size-10 rotate-12 rounded-xl bg-surface/35" />
+        <span className="absolute bottom-5 right-20 size-5 rounded-full bg-surface/50" />
+      </div>
 
-      <div className="flex flex-1 flex-col p-4">
-        <h3 className="font-semibold leading-tight text-ink">{track.title}</h3>
-        <p className="mt-0.5 text-xs text-ink-muted">
+      <div className="flex flex-1 flex-col p-5">
+        <h3 className="text-base font-bold leading-snug text-ink">{track.title}</h3>
+        <p className="mt-1 text-sm text-ink-muted">
           Lição {track.currentLesson} de {track.totalLessons}
         </p>
 
@@ -92,7 +96,7 @@ export function TrackCard({
       aria-label={`Abrir trilha ${track.title}, lição ${track.currentLesson} de ${track.totalLessons}, ${track.progressPct}% concluída`}
       className={cn(
         CARD_CLASSES,
-        "transition-shadow hover:shadow-raised focus-visible:shadow-raised",
+        "transition-[border-color,box-shadow,transform] hover:-translate-y-1 hover:border-tint-violeta-cover hover:shadow-raised focus-visible:shadow-raised",
       )}
     >
       <CardBody track={track} variant="compact" />

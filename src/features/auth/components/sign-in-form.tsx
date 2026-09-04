@@ -1,12 +1,16 @@
 "use client";
 
 import { Check, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { ROUTES } from "@/config/routes";
+import { dataSource } from "@/core/data/provider";
+import { toUserMessage } from "@/core/domain/errors";
 import { useSignIn } from "@/features/auth/hooks";
 import { cn } from "@/lib/cn";
 
@@ -30,16 +34,17 @@ export function SignInForm() {
     event.preventDefault();
     try {
       await signIn.mutateAsync({ email, password, rememberMe });
-      router.push(ROUTES.student.home);
+      const seenOnboarding = await dataSource.auth.hasSeenOnboarding();
+      router.push(seenOnboarding ? ROUTES.student.home : ROUTES.onboarding);
     } catch {
       // O erro é exibido abaixo, a partir de `signIn.error`.
     }
   }
 
   return (
-    <div className="relative w-full max-w-md rounded-card bg-surface p-7 shadow-raised sm:p-9">
+    <div className="relative w-full max-w-md rounded-card border border-line bg-surface p-7 shadow-raised sm:p-10">
       <div className="flex justify-center">
-        <BrandMark className="size-14 bg-primary-soft" />
+        <BrandMark className="size-14" />
       </div>
 
       <h1 className="mt-5 text-center text-2xl font-bold leading-tight text-ink sm:text-3xl">
@@ -52,11 +57,11 @@ export function SignInForm() {
       </p>
 
       <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
-        <label className="block">
-          <span className="sr-only">E-mail</span>
+        <FormField id="email" label="E-mail">
           <div className="flex min-h-touch items-center gap-3 rounded-pill border-2 border-tint-violeta-cover bg-surface px-5 focus-within:border-primary">
             <Mail className="size-5 shrink-0 text-primary" aria-hidden />
             <input
+              id="email"
               type="email"
               name="email"
               autoComplete="email"
@@ -64,16 +69,16 @@ export function SignInForm() {
               placeholder="E-mail"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted"
+              className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted focus-visible:outline-none"
             />
           </div>
-        </label>
+        </FormField>
 
-        <label className="block">
-          <span className="sr-only">Senha</span>
+        <FormField id="password" label="Senha">
           <div className="flex min-h-touch items-center gap-3 rounded-pill border-2 border-tint-violeta-cover bg-surface px-5 focus-within:border-primary">
             <Lock className="size-5 shrink-0 text-primary" aria-hidden />
             <input
+              id="password"
               type={showPassword ? "text" : "password"}
               name="password"
               autoComplete="current-password"
@@ -81,7 +86,7 @@ export function SignInForm() {
               placeholder="Senha"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted"
+              className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted focus-visible:outline-none"
             />
             <button
               type="button"
@@ -97,7 +102,7 @@ export function SignInForm() {
               )}
             </button>
           </div>
-        </label>
+        </FormField>
 
         <button
           type="button"
@@ -119,9 +124,16 @@ export function SignInForm() {
           Salvar a minha senha
         </button>
 
+        <Link
+          href={ROUTES.auth.recoverPassword}
+          className="self-start text-sm font-semibold text-primary hover:underline"
+        >
+          Esqueceu sua senha?
+        </Link>
+
         {signIn.error && (
           <p role="alert" className="text-sm font-medium text-danger">
-            {signIn.error.message}
+            {toUserMessage(signIn.error)}
           </p>
         )}
 

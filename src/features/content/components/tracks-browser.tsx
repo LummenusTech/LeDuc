@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { EmptyState, ErrorState } from "@/components/feedback/states";
 import { Skeleton } from "@/components/ui/primitives";
+import { FormField } from "@/components/ui/form-field";
 import { ROUTES } from "@/config/routes";
 import { CardCarousel } from "@/features/content/components/card-carousel";
 import { TrackCard } from "@/features/content/components/track-card";
@@ -26,30 +27,34 @@ export function TracksBrowser() {
   const searchResults = useTracks({ query: query.trim() });
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-9">
-      <label className="block">
-        <span className="sr-only">Buscar trilhas, aulas ou conteúdos</span>
-        <div className="flex min-h-touch items-center gap-3 rounded-control border-2 border-line bg-surface px-4 focus-within:border-primary">
+    <div className="flex flex-col gap-10">
+      <FormField
+        id="track-search"
+        label="O que você quer aprender?"
+        hint="Digite uma palavra, como leitura ou gramática."
+      >
+        <div className="flex min-h-touch items-center gap-3 rounded-control border-2 border-line bg-surface px-4 shadow-sm transition-[border-color,box-shadow] hover:border-tint-violeta-cover focus-within:border-primary focus-within:ring-4 focus-within:ring-primary-soft">
           <Search className="size-5 shrink-0 text-ink-muted" aria-hidden />
           <input
+            id="track-search"
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Busque trilhas, aulas ou conteúdos…"
-            className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted"
+            className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted focus-visible:outline-none"
           />
           {isSearching && (
             <button
               type="button"
               onClick={() => setQuery("")}
               aria-label="Limpar busca"
-              className="shrink-0 rounded-full p-1 text-ink-muted hover:text-primary"
+              className="grid size-10 shrink-0 place-items-center rounded-full text-ink-muted hover:bg-primary-soft hover:text-primary"
             >
               <X className="size-5" aria-hidden />
             </button>
           )}
         </div>
-      </label>
+      </FormField>
 
       {isSearching ? (
         <section aria-live="polite">

@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -12,16 +12,19 @@ import { cn } from "@/lib/cn";
  */
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 rounded-control font-semibold " +
-    "transition-colors disabled:pointer-events-none disabled:opacity-50 " +
+    "whitespace-nowrap shadow-sm transition-[background-color,border-color,color,box-shadow,transform] " +
+    "active:translate-y-px disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none " +
     "focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary",
   {
     variants: {
       variant: {
-        primary: "bg-primary text-ink-inverse hover:bg-primary-hover",
+        primary: "bg-primary text-ink-inverse shadow-primary/20 hover:bg-primary-hover hover:shadow-md",
+        secondary: "border-2 border-primary bg-surface text-primary hover:bg-primary-soft",
         soft: "bg-primary-soft text-primary hover:bg-primary hover:text-ink-inverse",
         ghost:
-          "border-2 border-line bg-surface text-primary hover:border-primary",
+          "border-2 border-line bg-surface text-primary hover:border-primary hover:bg-primary-soft",
         quiet: "text-ink-muted hover:bg-surface-muted hover:text-ink",
+        danger: "bg-danger text-ink-inverse hover:brightness-95",
       },
       size: {
         /** Ação principal — respeita o alvo de toque de 56px. */
@@ -38,6 +41,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
     isLoading?: boolean;
     children?: ReactNode;
+    ref?: Ref<HTMLButtonElement>;
   };
 
 export function Button({
@@ -47,10 +51,12 @@ export function Button({
   isLoading = false,
   disabled,
   children,
+  ref,
   ...props
 }: ButtonProps) {
   return (
     <button
+      ref={ref}
       className={cn(buttonVariants({ variant, size }), className)}
       disabled={disabled || isLoading}
       {...props}

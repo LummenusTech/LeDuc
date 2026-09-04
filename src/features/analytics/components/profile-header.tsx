@@ -109,7 +109,7 @@ export function ProfileHeader() {
       </Card>
 
       <nav aria-label="Seções do perfil" className="border-b border-line">
-        <ul className="-mb-px flex gap-1 overflow-x-auto">
+        <ul className="scrollbar-hidden -mb-px flex gap-1 overflow-x-auto">
           {PROFILE_TABS.map((tab) => {
             const isActive = pathname === tab.href;
             return (

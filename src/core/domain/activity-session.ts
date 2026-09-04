@@ -1,7 +1,7 @@
 import { MAX_ATTEMPTS_PER_ITEM } from "@/config/activity-rules";
 import type { GradeOutcome } from "@/core/domain/grading";
 import { computeActivityXp, computePerformancePercent } from "@/core/domain/xp";
-import type { Item } from "@/core/domain/types";
+import type { Attempt, Item } from "@/core/domain/types";
 
 /**
  * Máquina de estados da atividade (RN-A1 a RN-A8).
@@ -30,6 +30,13 @@ export type ItemState = {
    */
   firstAttemptCorrect: boolean | null;
   resolution: ItemResolution | null;
+  /**
+   * Horário da PRIMEIRA tentativa. `null` até a primeira resposta. Nunca é
+   * reescrito depois — inclusive quando `resolvePendingReview` resolve o item
+   * mais tarde, o horário que fica é o de quando o aluno respondeu, não o de
+   * quando a IA ou o professor corrigiu (RN-D1).
+   */
+  answeredAt: string | null;
 };
 
 export type ActivitySession = {
@@ -69,6 +76,7 @@ export function startSession(
       attempts: 0,
       firstAttemptCorrect: null,
       resolution: null,
+      answeredAt: null,
     })),
   };
 }
@@ -95,6 +103,7 @@ export function resumeSession(
           attempts: 0,
           firstAttemptCorrect: null,
           resolution: null,
+          answeredAt: null,
         },
     ),
   };
@@ -157,6 +166,7 @@ export function submitAnswer(
   session: ActivitySession,
   itemId: string,
   outcome: GradeOutcome,
+  now: string,
 ): ActivitySession {
   const current = findState(session, itemId);
   if (!current || isItemResolved(current)) return session;
@@ -164,6 +174,7 @@ export function submitAnswer(
   return replaceItem(session, itemId, (state) => {
     const attempts = state.attempts + 1;
     const isFirstAttempt = attempts === 1;
+    const answeredAt = isFirstAttempt ? now : state.answeredAt;
 
     if (outcome.status === "pending_review") {
       return {
@@ -173,6 +184,7 @@ export function submitAnswer(
         // erro no domínio até a IA responder (RN-D4).
         firstAttemptCorrect: null,
         resolution: "pending_review",
+        answeredAt,
       };
     }
 
@@ -181,7 +193,13 @@ export function submitAnswer(
       : state.firstAttemptCorrect;
 
     if (outcome.status === "correct") {
-      return { ...state, attempts, firstAttemptCorrect, resolution: "correct" };
+      return {
+        ...state,
+        attempts,
+        firstAttemptCorrect,
+        resolution: "correct",
+        answeredAt,
+      };
     }
 
     // Errou. Esgotadas as tentativas, o app revela e avança (RN-A1) — ninguém
@@ -192,6 +210,7 @@ export function submitAnswer(
       attempts,
       firstAttemptCorrect,
       resolution: exhausted ? "revealed" : null,
+      answeredAt,
     };
   });
 }
@@ -278,4 +297,49 @@ export function summarizeSession(
       (state) => state.resolution === "pending_review",
     ).length,
   };
+}
+
+/**
+ * Converte a sessão em tentativas para o domínio de mastery (RN-D1–D4).
+ *
+ * Só a primeira tentativa de cada item resolvido vira `Attempt` — é a única
+ * que `mastery.ts` usa, e a única para a qual a sessão guarda horário. Item
+ * ainda pendente (RN-D4) fica fora até ser corrigido; quando é corrigido, o
+ * horário que entra é o da resposta original, não o da correção.
+ *
+ * `timeSpentSeconds` é o intervalo até a resposta anterior (ou o início da
+ * sessão, para o primeiro item) — não é "tempo gasto só neste item" no
+ * sentido estrito, mas é o único relógio que a sessão realmente guarda.
+ */
+export function toAttempts(session: ActivitySession): Attempt[] {
+  const attempts: Attempt[] = [];
+  let previousAnsweredAt = session.startedAt;
+
+  for (const state of session.items) {
+    if (state.resolution === null || state.resolution === "pending_review") {
+      continue;
+    }
+    if (!state.answeredAt) continue;
+
+    const timeSpentSeconds = Math.max(
+      0,
+      Math.round(
+        (new Date(state.answeredAt).getTime() -
+          new Date(previousAnsweredAt).getTime()) /
+          1000,
+      ),
+    );
+
+    attempts.push({
+      itemId: state.itemId,
+      isCorrect: state.firstAttemptCorrect === true,
+      attemptNumber: 1,
+      timeSpentSeconds,
+      answeredAt: state.answeredAt,
+    });
+
+    previousAnsweredAt = state.answeredAt;
+  }
+
+  return attempts;
 }
