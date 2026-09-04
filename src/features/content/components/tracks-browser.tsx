@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { EmptyState, ErrorState } from "@/components/feedback/states";
 import { Skeleton } from "@/components/ui/primitives";
+import { FormField } from "@/components/ui/form-field";
 import { ROUTES } from "@/config/routes";
 import { CardCarousel } from "@/features/content/components/card-carousel";
 import { TrackCard } from "@/features/content/components/track-card";
@@ -26,12 +27,16 @@ export function TracksBrowser() {
   const searchResults = useTracks({ query: query.trim() });
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-9">
-      <label className="block">
-        <span className="sr-only">Buscar trilhas, aulas ou conteúdos</span>
+    <div className="flex flex-col gap-10">
+      <FormField
+        id="track-search"
+        label="O que você quer aprender?"
+        hint="Digite uma palavra, como leitura ou gramática."
+      >
         <div className="flex min-h-touch items-center gap-3 rounded-control border-2 border-line bg-surface px-4 focus-within:border-primary">
           <Search className="size-5 shrink-0 text-ink-muted" aria-hidden />
           <input
+            id="track-search"
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -49,7 +54,7 @@ export function TracksBrowser() {
             </button>
           )}
         </div>
-      </label>
+      </FormField>
 
       {isSearching ? (
         <section aria-live="polite">

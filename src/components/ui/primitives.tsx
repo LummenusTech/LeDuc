@@ -9,11 +9,21 @@ import { cn } from "@/lib/cn";
 
 export function Card({
   className,
+  variant = "default",
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement> & {
+  variant?: "default" | "interactive" | "featured" | "metric";
+}) {
   return (
     <div
-      className={cn("rounded-card bg-surface shadow-card", className)}
+      className={cn(
+        "rounded-card border border-line/80 bg-surface shadow-card",
+        variant === "interactive" &&
+          "transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-tint-violeta-cover hover:shadow-raised",
+        variant === "featured" && "border-primary/15 shadow-raised",
+        variant === "metric" && "shadow-none",
+        className,
+      )}
       {...props}
     />
   );

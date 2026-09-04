@@ -66,6 +66,7 @@
 
   --shadow-card: 0 4px 24px -6px rgb(76 29 149 / 0.1);
   --shadow-raised: 0 10px 32px -8px rgb(76 29 149 / 0.18);
+  --shadow-control: 0 1px 2px rgb(44 42 53 / 0.04);
 
   /* --- tipografia --- */
   --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
@@ -142,6 +143,21 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  line-height: 1.5;
+}
+
+::selection {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Foco sempre visível: o público navega por teclado e leitor de tela. */

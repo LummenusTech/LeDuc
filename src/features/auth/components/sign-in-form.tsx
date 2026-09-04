@@ -7,6 +7,7 @@ import { useState, type FormEvent } from "react";
 
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { ROUTES } from "@/config/routes";
 import { dataSource } from "@/core/data/provider";
 import { toUserMessage } from "@/core/domain/errors";
@@ -41,7 +42,7 @@ export function SignInForm() {
   }
 
   return (
-    <div className="relative w-full max-w-md rounded-card bg-surface p-7 shadow-raised sm:p-9">
+    <div className="relative w-full max-w-md rounded-card border border-line bg-surface p-7 shadow-raised sm:p-10">
       <div className="flex justify-center">
         <BrandMark className="size-14" />
       </div>
@@ -56,11 +57,11 @@ export function SignInForm() {
       </p>
 
       <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
-        <label className="block">
-          <span className="sr-only">E-mail</span>
+        <FormField id="email" label="E-mail">
           <div className="flex min-h-touch items-center gap-3 rounded-pill border-2 border-tint-violeta-cover bg-surface px-5 focus-within:border-primary">
             <Mail className="size-5 shrink-0 text-primary" aria-hidden />
             <input
+              id="email"
               type="email"
               name="email"
               autoComplete="email"
@@ -71,13 +72,13 @@ export function SignInForm() {
               className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted"
             />
           </div>
-        </label>
+        </FormField>
 
-        <label className="block">
-          <span className="sr-only">Senha</span>
+        <FormField id="password" label="Senha">
           <div className="flex min-h-touch items-center gap-3 rounded-pill border-2 border-tint-violeta-cover bg-surface px-5 focus-within:border-primary">
             <Lock className="size-5 shrink-0 text-primary" aria-hidden />
             <input
+              id="password"
               type={showPassword ? "text" : "password"}
               name="password"
               autoComplete="current-password"
@@ -101,7 +102,7 @@ export function SignInForm() {
               )}
             </button>
           </div>
-        </label>
+        </FormField>
 
         <button
           type="button"

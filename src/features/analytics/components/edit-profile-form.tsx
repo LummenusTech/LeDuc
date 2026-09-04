@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
+import { FormField, TextInput } from "@/components/ui/form-field";
 import { Card, HighlightHeading, Skeleton } from "@/components/ui/primitives";
 import { ROUTES } from "@/config/routes";
 import { toUserMessage } from "@/core/domain/errors";
@@ -48,34 +49,33 @@ function EditProfileFormLoaded({ user }: { user: User }) {
 
       <Card className="p-6">
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-ink">
-              Nome
-            </span>
-            <input
+          <FormField
+            id="profile-name"
+            label="Nome"
+            hint="Use o nome pelo qual você prefere ser chamado."
+          >
+            <TextInput
+              id="profile-name"
               type="text"
               value={name}
               onChange={(event) => setName(event.target.value)}
               required
               minLength={1}
-              className="min-h-touch w-full rounded-control border-2 border-line bg-surface px-4 text-base text-ink focus-visible:border-primary focus-visible:outline-none"
             />
-          </label>
+          </FormField>
 
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-ink">
-              E-mail
-            </span>
-            <input
+          <FormField
+            id="profile-email"
+            label="E-mail"
+            hint="O e-mail não pode ser alterado neste protótipo."
+          >
+            <TextInput
+              id="profile-email"
               type="email"
               value={user.email}
               disabled
-              className="min-h-touch w-full rounded-control border-2 border-line bg-surface-muted px-4 text-base text-ink-muted"
             />
-            <span className="mt-1 block text-xs text-ink-muted">
-              O e-mail não pode ser alterado neste protótipo.
-            </span>
-          </label>
+          </FormField>
 
           {updateProfile.isError && (
             <p role="alert" className="text-sm font-medium text-danger">
@@ -90,7 +90,7 @@ function EditProfileFormLoaded({ user }: { user: User }) {
             </p>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <Button
               type="submit"
               isLoading={updateProfile.isPending}

@@ -2,7 +2,7 @@
 
 import { Bell, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { AccessibilityPanel } from "@/components/a11y/accessibility-panel";
 import { BrandMark } from "@/components/layout/brand-mark";
@@ -19,15 +19,29 @@ import { useRecordAccessOnMount } from "@/features/analytics/hooks";
  */
 export function AppShell({ children }: { children: ReactNode }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   useRecordAccessOnMount();
+
+  useEffect(() => {
+    if (!isDrawerOpen) return;
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsDrawerOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    }
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [isDrawerOpen]);
 
   return (
     <div className="flex min-h-dvh bg-canvas">
       <SideNav />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center gap-3 px-4 pt-4 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-line/70 bg-canvas/90 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
           <Button
+            ref={menuButtonRef}
             variant="quiet"
             size="icon"
             className="lg:hidden"
@@ -52,8 +66,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
         </header>
 
-        <main className="flex-1 px-4 pb-28 pt-6 sm:px-6 lg:px-8 lg:pb-12">
-          {children}
+        <main className="flex-1 px-4 pb-28 pt-7 sm:px-6 lg:px-8 lg:pb-12 lg:pt-9">
+          <div className="mx-auto w-full max-w-6xl">{children}</div>
         </main>
       </div>
 
@@ -71,7 +85,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             role="dialog"
             aria-modal="true"
             aria-label="Mais opções"
-            className="relative flex w-72 max-w-[85vw] flex-col gap-6 bg-surface p-4 shadow-raised"
+            className="relative flex w-80 max-w-[88vw] flex-col gap-6 border-r border-line bg-surface p-5 shadow-raised"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">

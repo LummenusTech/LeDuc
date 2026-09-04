@@ -23,7 +23,7 @@ export function StudentHome() {
   const firstName = session.data?.user.name ?? "estudante";
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-9">
+    <div className="flex flex-col gap-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <HighlightHeading
           before="Tudo bem, "
@@ -33,8 +33,10 @@ export function StudentHome() {
         />
 
         {gamification.data && (
-          <Card className="flex items-center gap-3 px-4 py-3">
-            <Flame className="size-6 text-tint-pessego-solid" aria-hidden />
+          <Card variant="metric" className="flex min-w-40 items-center gap-3 px-4 py-3.5">
+            <span className="grid size-11 place-items-center rounded-full bg-tint-pessego-soft">
+              <Flame className="size-6 text-tint-pessego-solid" aria-hidden />
+            </span>
             <div>
               <p className="text-lg font-bold leading-none text-ink tabular-nums">
                 {gamification.data.streakDays}

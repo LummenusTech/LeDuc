@@ -53,7 +53,7 @@ export function FillBlanksItem({
               autoComplete="off"
               autoCapitalize="off"
               spellCheck={false}
-              className="mx-1 inline-block w-24 rounded-control border-2 border-line bg-surface px-2 py-1 text-center text-xl font-semibold text-ink focus-visible:border-primary focus-visible:outline-none"
+              className="mx-1 inline-block min-h-12 w-28 rounded-control border-2 border-line bg-surface px-2 py-1 text-center text-xl font-semibold text-ink shadow-sm outline-none transition-colors hover:border-tint-violeta-cover focus:border-primary focus:ring-4 focus:ring-primary-soft"
             />
           );
         })}

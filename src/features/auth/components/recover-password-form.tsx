@@ -6,6 +6,7 @@ import { useState, type FormEvent } from "react";
 
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { ROUTES } from "@/config/routes";
 import { useRequestPasswordReset } from "@/features/auth/hooks";
 
@@ -27,7 +28,7 @@ export function RecoverPasswordForm() {
 
   if (requestReset.isSuccess) {
     return (
-      <div className="relative w-full max-w-md rounded-card bg-surface p-7 text-center shadow-raised sm:p-9">
+      <div className="relative w-full max-w-md rounded-card border border-line bg-surface p-7 text-center shadow-raised sm:p-10">
         <span className="mx-auto grid size-14 place-items-center rounded-full bg-primary-soft text-primary">
           <MailCheck className="size-7" aria-hidden />
         </span>
@@ -48,7 +49,7 @@ export function RecoverPasswordForm() {
   }
 
   return (
-    <div className="relative w-full max-w-md rounded-card bg-surface p-7 shadow-raised sm:p-9">
+    <div className="relative w-full max-w-md rounded-card border border-line bg-surface p-7 shadow-raised sm:p-10">
       <div className="flex justify-center">
         <BrandMark className="size-14" />
       </div>
@@ -62,11 +63,11 @@ export function RecoverPasswordForm() {
       </p>
 
       <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
-        <label className="block">
-          <span className="sr-only">E-mail</span>
+        <FormField id="recover-email" label="E-mail">
           <div className="flex min-h-touch items-center gap-3 rounded-pill border-2 border-tint-violeta-cover bg-surface px-5 focus-within:border-primary">
             <Mail className="size-5 shrink-0 text-primary" aria-hidden />
             <input
+              id="recover-email"
               type="email"
               name="email"
               autoComplete="email"
@@ -77,7 +78,7 @@ export function RecoverPasswordForm() {
               className="w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted"
             />
           </div>
-        </label>
+        </FormField>
 
         <Button type="submit" isLoading={requestReset.isPending} className="w-full">
           {requestReset.isPending ? "Enviando…" : "Enviar link"}

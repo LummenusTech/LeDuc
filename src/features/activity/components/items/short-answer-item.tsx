@@ -4,6 +4,7 @@ import { useState } from "react";
 import { WifiOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FormField, TextArea } from "@/components/ui/form-field";
 import type { ItemAnswer } from "@/core/domain/grading";
 import type { Item } from "@/core/domain/types";
 
@@ -22,15 +23,20 @@ export function ShortAnswerItem({
 
   return (
     <div className="flex flex-col gap-3">
-      <textarea
-        disabled={disabled}
-        value={text}
-        onChange={(event) => setText(event.target.value)}
-        rows={3}
-        placeholder="Escreva sua resposta aqui"
-        aria-label={item.prompt}
-        className="w-full resize-none rounded-control border-2 border-line bg-surface px-4 py-3 text-base text-ink focus-visible:border-primary focus-visible:outline-none"
-      />
+      <FormField
+        id={`short-answer-${item.id}`}
+        label="Sua resposta"
+        hint="Escreva com suas palavras. Sua resposta fica salva neste aparelho."
+      >
+        <TextArea
+          id={`short-answer-${item.id}`}
+          disabled={disabled}
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          rows={3}
+          placeholder="Escreva aqui"
+        />
+      </FormField>
 
       {!isOnline && (
         <p className="flex items-center gap-2 text-sm text-ink-muted">
