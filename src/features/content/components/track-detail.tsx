@@ -76,7 +76,7 @@ export function TrackDetail({ trackId }: { trackId: string }) {
   const tint = TINT_CLASSES[track.data.tint];
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6">
+    <div className="mx-auto flex max-w-3xl flex-col gap-7">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <HighlightHeading
           before=""
@@ -86,7 +86,7 @@ export function TrackDetail({ trackId }: { trackId: string }) {
         <Chip tint={track.data.tint}>Nível {track.data.level}</Chip>
       </div>
 
-      <div>
+      <Card variant="featured" className="p-5 sm:p-6">
         <div className="mb-1.5 flex items-center justify-between text-sm">
           <span className="font-medium text-ink-muted">Progresso</span>
           <span className={cn("font-semibold tabular-nums", tint.ink)}>
@@ -98,7 +98,10 @@ export function TrackDetail({ trackId }: { trackId: string }) {
           tint={track.data.tint}
           label={`Progresso da trilha ${track.data.title}`}
         />
-      </div>
+        <p className="mt-3 text-sm leading-relaxed text-ink-muted">
+          Conclua uma lição para liberar a próxima. Você pode revisar as concluídas quando quiser.
+        </p>
+      </Card>
 
       {trackDone && (
         <Card
@@ -118,9 +121,11 @@ export function TrackDetail({ trackId }: { trackId: string }) {
         </Card>
       )}
 
-      <ol className="flex flex-col gap-3">
+      <div>
+        <h2 className="mb-3 text-lg font-bold text-ink">Mapa da trilha</h2>
+      <ol className="relative flex flex-col gap-3 before:absolute before:bottom-8 before:left-9 before:top-8 before:w-0.5 before:bg-line">
         {ordered.map((lesson, index) => (
-          <li key={lesson.id}>
+          <li key={lesson.id} className="relative">
             <LessonRow
               title={lesson.title}
               estimatedMinutes={lesson.estimatedMinutes}
@@ -133,6 +138,7 @@ export function TrackDetail({ trackId }: { trackId: string }) {
           </li>
         ))}
       </ol>
+      </div>
     </div>
   );
 }
@@ -169,15 +175,15 @@ function LessonRow({
   const content = (
     <Card
       className={cn(
-        "flex items-center gap-4 px-4 py-3.5 transition-shadow",
+        "relative flex min-h-20 items-center gap-4 px-5 py-4 transition-[border-color,box-shadow,transform]",
         locked
           ? "opacity-60"
-          : "hover:shadow-raised focus-visible:shadow-raised",
+          : "hover:-translate-y-0.5 hover:border-tint-violeta-cover hover:shadow-raised focus-visible:shadow-raised",
       )}
     >
       <span
         className={cn(
-          "grid size-10 shrink-0 place-items-center rounded-full",
+            "z-10 grid size-10 shrink-0 place-items-center rounded-full ring-4 ring-canvas",
           status === "completed"
             ? cn(tint.chip, tint.ink)
             : status === "locked"
@@ -190,7 +196,7 @@ function LessonRow({
       </span>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate font-semibold text-ink">
+        <p className="font-bold text-ink">
           Lição {orderIndex + 1}: {title}
         </p>
         <p className="text-xs text-ink-muted">

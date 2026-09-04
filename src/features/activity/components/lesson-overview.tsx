@@ -86,8 +86,8 @@ export function LessonOverview({ lessonId }: { lessonId: string }) {
   );
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-6">
-      <div className="flex items-center gap-3">
+    <div className="mx-auto flex max-w-2xl flex-col gap-7">
+      <div className="flex items-start gap-3">
         <Link
           href={ROUTES.student.track(trackId)}
           aria-label="Voltar para a trilha"
@@ -98,13 +98,15 @@ export function LessonOverview({ lessonId }: { lessonId: string }) {
         <HighlightHeading
           as="h1"
           highlight={lesson.data.title}
-          description={`${lesson.data.estimatedMinutes} min`}
+          description={`${lesson.data.estimatedMinutes} minutos · ${ordered.length} atividades · 6 questões por atividade`}
         />
       </div>
 
       {isDone && (
-        <Card className="flex items-center gap-3 bg-primary-soft px-4 py-3">
-          <Repeat className="size-5 shrink-0 text-primary" aria-hidden />
+        <Card variant="featured" className="flex items-start gap-3 bg-primary-soft px-5 py-4">
+          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-ink-inverse">
+            <Repeat className="size-5" aria-hidden />
+          </span>
           <p className="text-sm font-medium text-primary">
             Você já concluiu esta lição — domínio de {progress.masteryScore}%.
             Pode revisar quando quiser.
@@ -112,6 +114,8 @@ export function LessonOverview({ lessonId }: { lessonId: string }) {
         </Card>
       )}
 
+      <div>
+        <h2 className="mb-3 text-lg font-bold text-ink">Atividades da lição</h2>
       <ol className="flex flex-col gap-3">
         {ordered.map((activity, index) => (
           <li key={activity.id}>
@@ -126,6 +130,7 @@ export function LessonOverview({ lessonId }: { lessonId: string }) {
           </li>
         ))}
       </ol>
+      </div>
     </div>
   );
 }
@@ -147,7 +152,7 @@ function ActivityRow({
 
   return (
     <Link href={href}>
-      <Card className="flex items-center gap-4 px-4 py-3.5 transition-shadow hover:shadow-raised focus-visible:shadow-raised">
+      <Card variant="interactive" className="flex items-center gap-4 px-5 py-4">
         <span
           className={cn(
             "grid size-10 shrink-0 place-items-center rounded-full font-semibold",
@@ -160,7 +165,7 @@ function ActivityRow({
           {done ? <Check className="size-5" /> : index + 1}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold text-ink">{activity.title}</p>
+          <p className="font-bold text-ink">{activity.title}</p>
           <div className="mt-0.5 flex items-center gap-2 text-xs text-ink-muted">
             <span>{done ? "Concluída" : "Não iniciada"}</span>
             {itemCount > 0 && (

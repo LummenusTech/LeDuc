@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 
 import { EmptyState, ErrorState } from "@/components/feedback/states";
-import { Card, HighlightHeading, Skeleton } from "@/components/ui/primitives";
+import { Card, Skeleton } from "@/components/ui/primitives";
+import { PageHeader } from "@/components/ui/page-header";
 import type { NotificationKind } from "@/core/domain/scheduling";
 import { useNotifications } from "@/features/progress/hooks";
 import { cn } from "@/lib/cn";
@@ -37,8 +38,8 @@ export function NotificationCenter() {
   const notifications = useNotifications();
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <HighlightHeading highlight="Notificações" />
+    <div className="mx-auto flex max-w-3xl flex-col gap-7">
+      <PageHeader eyebrow="Avisos" title="Notificações" description="Atividades, revisões e lembretes importantes aparecem aqui." />
 
       {notifications.isPending && (
         <div className="flex flex-col gap-3">
@@ -66,7 +67,7 @@ export function NotificationCenter() {
             const Icon = KIND_ICON[notification.kind];
             return (
               <li key={`${notification.kind}-${notification.sourceId ?? index}`}>
-                <Card className="flex items-start gap-3 px-4 py-3.5">
+                <Card variant="interactive" className="flex items-start gap-4 px-5 py-4">
                   <span
                     className={cn(
                       "grid size-10 shrink-0 place-items-center rounded-full",
@@ -76,11 +77,11 @@ export function NotificationCenter() {
                   >
                     <Icon className="size-5" />
                   </span>
-                  <div>
-                    <p className="font-semibold text-ink">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-ink">
                       {notification.title}
                     </p>
-                    <p className="text-sm text-ink-muted">
+                    <p className="mt-1 text-sm leading-relaxed text-ink-muted">
                       {notification.description}
                     </p>
                   </div>

@@ -6,10 +6,10 @@ import Link from "next/link";
 import { ErrorState } from "@/components/feedback/states";
 import {
   Card,
-  HighlightHeading,
   ProgressBar,
   Skeleton,
 } from "@/components/ui/primitives";
+import { PageHeader } from "@/components/ui/page-header";
 import { ROUTES } from "@/config/routes";
 import {
   useGamificationSummary,
@@ -33,10 +33,10 @@ export function ProgressOverview() {
   const performance = useModulePerformance();
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <HighlightHeading highlight="Progresso" description="Sua evolução até aqui" />
+    <div className="mx-auto flex max-w-4xl flex-col gap-7">
+      <PageHeader eyebrow="Minha aprendizagem" title="Seu progresso" description="Veja o que você já conquistou e qual é o próximo passo." />
 
-      <Card className="p-5">
+      <Card variant="featured" className="p-5 sm:p-6">
         {gamification.isPending && <Skeleton className="h-24" />}
         {gamification.isError && (
           <ErrorState onRetry={() => gamification.refetch()} />
@@ -75,7 +75,7 @@ export function ProgressOverview() {
         )}
       </Card>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-4">
         {gamification.data && (
           <>
             <StatTile
@@ -110,7 +110,7 @@ export function ProgressOverview() {
         )}
       </div>
 
-      <Card className="p-5">
+      <Card className="p-5 sm:p-6">
         <h2 className="text-lg font-bold text-ink">Desempenho por área</h2>
         <p className="mt-0.5 text-sm text-ink-muted">
           Domínio médio das lições concluídas em cada módulo

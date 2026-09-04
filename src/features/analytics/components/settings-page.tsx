@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { Card, HighlightHeading } from "@/components/ui/primitives";
+import { Card } from "@/components/ui/primitives";
+import { PageHeader } from "@/components/ui/page-header";
 import { ROUTES } from "@/config/routes";
 import { useSignOut } from "@/features/auth/hooks";
 
@@ -20,7 +21,7 @@ export function SettingsPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <HighlightHeading highlight="Configurações" />
+      <PageHeader eyebrow="Sua conta" title="Configurações" description="Ajuste o LeDuc para ficar mais confortável para você." />
 
       <section>
         <h2 className="mb-2 px-1 text-sm font-semibold uppercase tracking-wide text-ink-muted">
@@ -30,11 +31,13 @@ export function SettingsPage() {
           <SettingsRow
             icon={User}
             label="Editar perfil"
+            description="Altere seu nome e confira seus dados."
             href={ROUTES.student.profile.edit}
           />
           <SettingsRow
             icon={ShieldCheck}
             label="Preferências de acessibilidade"
+            description="Aumente as letras, o contraste e a leitura em voz alta."
             href={ROUTES.student.profile.preferences}
           />
         </Card>
@@ -75,10 +78,12 @@ export function SettingsPage() {
 function SettingsRow({
   icon: Icon,
   label,
+  description,
   href,
 }: {
   icon: typeof User;
   label: string;
+  description: string;
   href: string;
 }) {
   return (
@@ -87,7 +92,10 @@ function SettingsRow({
       className="flex min-h-touch items-center gap-3 px-4 hover:bg-surface-muted"
     >
       <Icon className="size-5 shrink-0 text-ink-muted" aria-hidden />
-      <span className="flex-1 font-medium text-ink">{label}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-semibold text-ink">{label}</span>
+        <span className="mt-0.5 block text-sm leading-relaxed text-ink-muted">{description}</span>
+      </span>
       <ChevronRight className="size-5 shrink-0 text-ink-muted" aria-hidden />
     </Link>
   );
